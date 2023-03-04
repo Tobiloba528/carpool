@@ -18,74 +18,72 @@ const PostRequest = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.mainContainer}>
       <NavigationController title="Post a request" />
-      <ScrollView style={{ flex: 1 }}>
-        <KeyboardAvoidingView behavior="position" style={{ flex: 1, paddingBottom: 100 }}>
-          <ScrollView style={styles.contentContainer}>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>From</Text>
-              <FindTripButton
-                text={"Enter Origin"}
-                onPress={() =>
-                  navigation.navigate("SearchAddressScreen", {
-                    title: "From",
-                  })
-                }
-              >
-                <Ionicons name="location-sharp" size={20} color="black" />
-              </FindTripButton>
-            </View>
+      <ScrollView style={styles.contentContainer}>
+        <KeyboardAvoidingView
+          behavior="position"
+          style={{ flex: 1, paddingBottom: 100 }}
+        >
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>From</Text>
+            <FindTripButton
+              text={"Enter Origin"}
+              onPress={() =>
+                navigation.navigate("SearchAddressScreen", {
+                  title: "From",
+                })
+              }
+            >
+              <Ionicons name="location-sharp" size={20} color="black" />
+            </FindTripButton>
+          </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>To</Text>
-              <FindTripButton
-                text={"Enter Destination"}
-                onPress={() =>
-                  navigation.navigate("SearchAddressScreen", {
-                    title: "To",
-                  })
-                }
-              >
-                <Ionicons name="location-sharp" size={20} color="black" />
-              </FindTripButton>
-            </View>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Departure</Text>
-              <FindTripButton
-                text={"Pick a departure date"}
-                onPress={() =>
-                  navigation.navigate("SearchAddressScreen", {
-                    title: "",
-                  })
-                }
-              >
-                <FontAwesome name="calendar-o" size={18} color="black" />
-              </FindTripButton>
-            </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>To</Text>
+            <FindTripButton
+              text={"Enter Destination"}
+              onPress={() =>
+                navigation.navigate("SearchAddressScreen", {
+                  title: "To",
+                })
+              }
+            >
+              <Ionicons name="location-sharp" size={20} color="black" />
+            </FindTripButton>
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Departure</Text>
+            <FindTripButton
+              text={"Pick a departure date"}
+              onPress={() =>
+                navigation.navigate("SearchAddressScreen", {
+                  title: "",
+                })
+              }
+            >
+              <FontAwesome name="calendar-o" size={18} color="black" />
+            </FindTripButton>
+          </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Seats Required</Text>
-              <FindTripButton
-                text={"Select number"}
-                onPress={() =>
-                  navigation.navigate("SearchAddressScreen", {
-                    title: "",
-                  })
-                }
-              ></FindTripButton>
-            </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Seats Required</Text>
+            <FindTripButton
+              text={"Select number"}
+              onPress={() =>
+                navigation.navigate("SearchAddressScreen", {
+                  title: "",
+                })
+              }
+            ></FindTripButton>
+          </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Description</Text>
-              <TextInput
-                style={styles.message}
-                multiline
-                placeholder="Tell driver a little bit more about you and why you're travelling"
-              />
-            </View>
-          </ScrollView>
-          {/* <Pressable style={styles.postBtn}>
-            <Text style={styles.postText}>Post request</Text>
-          </Pressable> */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Description</Text>
+            <TextInput
+              style={styles.message}
+              multiline
+              placeholder="Tell driver a little bit more about you and why you're travelling"
+            />
+          </View>
           <View style={styles.postBtn}>
             <SecondaryButton isValid={true} title="Post request" radius={10} />
           </View>
@@ -121,8 +119,8 @@ const styles = StyleSheet.create({
     height: 150,
   },
   postBtn: {
-    paddingHorizontal: 20,
-  }
+    marginTop: 20
+  },
   // postBtn: {
   //   justifyContent: "center",
   //   alignItems: "center",

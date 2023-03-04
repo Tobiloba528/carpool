@@ -1,9 +1,9 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import React from 'react'
 
-const FindTripButton = ({ children, text, onPress }) => {
+const FindTripButton = ({ children, text, onPress, style }) => {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.container, pressed && styles.pressed]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.container, style, pressed && styles.pressed]}>
       {children}
       <Text style={styles.text}>{text}</Text>
     </Pressable>
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     text: {
-      fontWeight: "600",
+      fontWeight: "300",
       marginLeft: 10,
       color: "#696969"
     },
