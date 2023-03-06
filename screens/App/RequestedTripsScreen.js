@@ -192,7 +192,7 @@ const RequestedTripsScreen = ({ navigation }) => {
               ]}
             >
               <Text style={styles.btnText}>Post</Text>
-              <Ionicons name="add" size={24} color="white" />
+              <Ionicons name="add" size={20} color="white" />
             </Pressable>
           </View>
         </ScrollView>
@@ -254,10 +254,10 @@ const styles = StyleSheet.create({
   emptyText: {
     fontWeight: "500",
     fontSize: 16,
-    lineHeight: 18,
+    lineHeight: 20,
     width: "65%",
     textAlign: "center",
-    marginVertical: 20,
+    marginVertical: 25,
     color: "#555555",
   },
   date: {
@@ -270,6 +270,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     borderRadius: 15,
     position: "absolute",
+    width: 120,
     bottom: 10,
     right: 20,
   },
@@ -277,13 +278,13 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     borderRadius: 15,
     overflow: "hidden",
-    width: 140,
+    width: 120,
   },
 
   btn: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 15,
     display: "flex",
     justifyContent: "center",
@@ -291,8 +292,8 @@ const styles = StyleSheet.create({
   btnText: {
     fontWeight: "bold",
     color: "white",
-    fontSize: 17,
-    marginRight: 15,
+    fontSize: 15,
+    marginRight: 5,
   },
   btnPressed: {
     opacity: 0.7,
