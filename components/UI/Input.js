@@ -50,7 +50,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    fontSize: 18
+    fontSize: 18,
+    flex: 1
   },
   smallText: {
     color: "#006A61",

@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -22,6 +22,7 @@ import SearchAddressScreen from "./screens/App/SearchAddressScreen";
 import RequestedTripsScreen from "./screens/App/RequestedTripsScreen";
 import TripDetailScreen from "./screens/App/TripDetailScreen";
 import PostRequest from "./screens/App/PostRequest";
+import { useEffect } from "react";
 
 const AuthNavigator = () => {
   return (
@@ -132,12 +133,10 @@ const AppNavigator = () => {
       <Stack.Screen
         name="PostTrip"
         component={PostTrip}
-        options={
-          {
-            // presentation: "modal",
-            headerShown: false,
-          }
-        }
+        options={{
+          // presentation: "modal",
+          headerShown: false,
+        }}
       />
 
       <Stack.Screen
@@ -167,37 +166,45 @@ const AppNavigator = () => {
       <Stack.Screen
         name="TripDetailScreen"
         component={TripDetailScreen}
-        options={
-          {
-            headerShown: false,
-          }
-        }
+        options={{
+          headerShown: false,
+        }}
       />
       <Stack.Screen
         name="PostRequest"
         component={PostRequest}
-        options={
-          {
-            headerShown: false,
-          }
-        }
+        options={{
+          headerShown: false,
+        }}
       />
     </Stack.Navigator>
   );
 };
 
 const Root = () => {
-  const data = contextData();
+  const { isAuthLoading, isLoggedIn, token } = contextData();
 
-  console.log(data, "first");
+  useEffect(() => {
+    isLoggedIn();
+  }, []);
 
-  return (
-    <NavigationContainer>
-      <AppNavigator />
-      {/* {data.token && <AppNavigator />}
-      {!data.token && <AuthNavigator />} */}
-    </NavigationContainer>
-  );
+  if (isAuthLoading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size={"large"} />
+      </View>
+    );
+  }
+
+  if (!isAuthLoading) {
+    return (
+      <NavigationContainer>
+        {/* <AppNavigator /> */}
+        {token && <AppNavigator />}
+        {!token && <AuthNavigator />}
+      </NavigationContainer>
+    );
+  }
 };
 
 export default function App() {
@@ -214,5 +221,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

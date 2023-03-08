@@ -24,12 +24,10 @@ const LoginSchema = Yup.object().shape({
 });
 
 const LoginScreen = ({ navigation }) => {
-  const data = contextData();
+  const { handleLogin } = contextData();
 
   const handleSubmit = (values) => {
-    console.log(values)
-    data.handleToken(values.email);
-    console.log(data.token)
+    handleLogin(values);
   };
 
   return (

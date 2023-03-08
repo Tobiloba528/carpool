@@ -8,10 +8,12 @@ import {
 } from "react-native";
 import AccountList from "../../components/AccountList";
 import TopTitle from "../../components/UI/TopTitle";
+import { contextData } from "../../context/store";
 
 
 
 const AccountScreen = ({ navigation }) => {
+  const { handleLogout } = contextData()
 
     const profileList = [
         {
@@ -67,7 +69,7 @@ const AccountScreen = ({ navigation }) => {
         {
             id: 1,
             label: "Logout",
-            onPress: () => navigation.navigate("ProfileScreen")
+            onPress: handleLogout
           },
           {
             id: 2,

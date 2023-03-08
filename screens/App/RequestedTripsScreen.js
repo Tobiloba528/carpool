@@ -181,7 +181,7 @@ const RequestedTripsScreen = ({ navigation }) => {
             />
           </View>
           <Text style={styles.emptyText}>
-            Looks like there are no results matching your search
+            {"Looks like there are no results\n matching your search"}
           </Text>
           <View style={styles.btnContainer2}>
             <Pressable
@@ -255,7 +255,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontSize: 16,
     lineHeight: 20,
-    width: "65%",
     textAlign: "center",
     marginVertical: 25,
     color: "#555555",
