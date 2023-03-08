@@ -9,20 +9,24 @@ const AppContext = createContext({
   isLoggedIn: () => {},
   handleLogout: () => {},
   isAuthLoading: false,
+  loginError: null
 });
 
 const ContextProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [loginError, setLoginError] = useState(null);
+
 
   console.log(token, "this is the token");
 
   const auth = getAuth(firebaseApp);
   const handleLogin = (data) => {
     setIsAuthLoading(true);
+
     signInWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
-        console.log(userCredential, "these are the credentials");
+        // console.log(userCredential, "these are the credentials");
         setToken(userCredential._tokenResponse.idToken);
         AsyncStorage.setItem(
           "userToken",
@@ -31,11 +35,14 @@ const ContextProvider = ({ children }) => {
         setIsAuthLoading(false);
       })
       .catch((error) => {
-        console.log(error, "na the error be this");
+        console.log(error.message, "na the error be this");
+        setLoginError("Invalid email or passowrd!")
         setIsAuthLoading(false);
       });
     console.log(data, "this is in context");
   };
+
+
 
   const isLoggedIn = async () => {
     setIsAuthLoading(true);
@@ -56,6 +63,7 @@ const ContextProvider = ({ children }) => {
         AsyncStorage.removeItem("userToken");
         setToken(null);
         setIsAuthLoading(false);
+        setLoginError(null);
       })
       .catch((error) => {
         setIsAuthLoading(false);
@@ -69,7 +77,8 @@ const ContextProvider = ({ children }) => {
         handleLogin: handleLogin,
         isLoggedIn: isLoggedIn,
         isAuthLoading: isAuthLoading,
-        handleLogout: handleLogout
+        handleLogout: handleLogout,
+        loginError: loginError
       }}
     >
       {children}

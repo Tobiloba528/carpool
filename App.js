@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
@@ -25,6 +25,17 @@ import PostRequest from "./screens/App/PostRequest";
 import { useEffect } from "react";
 
 const AuthNavigator = () => {
+
+  const navigation = useNavigation()
+
+  const { isAuthLoading, isLoggedIn, token, loginError } = contextData();
+
+  useEffect(() => {
+    if(loginError){
+      navigation.navigate("Login");
+    }
+  }, [])
+
   return (
     <Stack.Navigator>
       <Stack.Screen

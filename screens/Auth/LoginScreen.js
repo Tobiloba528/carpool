@@ -24,7 +24,7 @@ const LoginSchema = Yup.object().shape({
 });
 
 const LoginScreen = ({ navigation }) => {
-  const { handleLogin } = contextData();
+  const { handleLogin, loginError } = contextData();
 
   const handleSubmit = (values) => {
     handleLogin(values);
@@ -68,8 +68,10 @@ const LoginScreen = ({ navigation }) => {
               handleChange={handleChange}
               name="email"
               error={errors.email}
+              authError={loginError}
               setFieldTouched={setFieldTouched}
               touched={touched.email}
+
             />
 
             <Input

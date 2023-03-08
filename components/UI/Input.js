@@ -12,7 +12,8 @@ const Input = ({
   name,
   error,
   setFieldTouched,
-  touched
+  touched,
+  authError
 }) => {
   return (
     <View style={styles.screen}>
@@ -34,6 +35,7 @@ const Input = ({
         </Pressable>
       </View>
       {touched && error && <Text style={styles.errorText}>{error}</Text>}
+      {authError && !touched && <Text style={styles.errorText}>{authError}</Text>}
     </View>
   );
 };
