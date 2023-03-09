@@ -28,12 +28,10 @@ const RegisterSchema = Yup.object().shape({
 });
 
 const RegisterScreen = ({ navigation }) => {
-  const data = contextData();
+  const { handleSignUp, signUpError } = contextData();
 
-  const handleSubmit = (values) => {
-    console.log(values)
-    data.handleToken(values.email);
-    console.log(data.token)
+  const handleSubmit = (data) => {
+    handleSignUp(data)
   };
 
   return (
@@ -77,6 +75,7 @@ const RegisterScreen = ({ navigation }) => {
               error={errors.fullName}
               setFieldTouched={setFieldTouched}
               touched={touched.fullName}
+              authError={signUpError}
             />
             <Input
               placeholder={"Email"}

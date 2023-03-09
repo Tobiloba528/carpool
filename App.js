@@ -28,11 +28,13 @@ const AuthNavigator = () => {
 
   const navigation = useNavigation()
 
-  const { isAuthLoading, isLoggedIn, token, loginError } = contextData();
+  const { isAuthLoading, isLoggedIn, token, loginError, signUpError } = contextData();
 
   useEffect(() => {
     if(loginError){
       navigation.navigate("Login");
+    }else if(signUpError){
+      navigation.navigate("Register")
     }
   }, [])
 

@@ -1,5 +1,10 @@
 import React, { useState, useContext, createContext } from "react";
-import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseApp } from "../http";
 
@@ -8,15 +13,17 @@ const AppContext = createContext({
   handleLogin: () => {},
   isLoggedIn: () => {},
   handleLogout: () => {},
+  handleSignUp: () => {},
   isAuthLoading: false,
-  loginError: null
+  loginError: null,
+  signUpError: null,
 });
 
 const ContextProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [loginError, setLoginError] = useState(null);
-
+  const [signUpError, setSignUpError] = useState(null);
 
   console.log(token, "this is the token");
 
@@ -36,13 +43,29 @@ const ContextProvider = ({ children }) => {
       })
       .catch((error) => {
         console.log(error.message, "na the error be this");
-        setLoginError("Invalid email or passowrd!")
+        setLoginError(error?.message?.split(":")[1] ? error?.message?.split(":")[1] : "Invalid email or passowrd!");
         setIsAuthLoading(false);
       });
-    console.log(data, "this is in context");
   };
 
+  const handleSignUp = (data) => {
+    setIsAuthLoading(true);
 
+    createUserWithEmailAndPassword(auth, data.email, data.password)
+      .then((userCredential) => {
+        setToken(userCredential._tokenResponse.idToken);
+        AsyncStorage.setItem(
+          "userToken",
+          userCredential._tokenResponse.idToken
+        );
+        setIsAuthLoading(false);
+      })
+      .catch((error) => {
+        console.log(error.message.split(":")[1], "sign up error")
+        setIsAuthLoading(false);
+        setSignUpError(error?.message?.split(":")[1] ? error?.message?.split(":")[1] : "Error signing up your account!");
+      });
+  };
 
   const isLoggedIn = async () => {
     setIsAuthLoading(true);
@@ -78,7 +101,9 @@ const ContextProvider = ({ children }) => {
         isLoggedIn: isLoggedIn,
         isAuthLoading: isAuthLoading,
         handleLogout: handleLogout,
-        loginError: loginError
+        loginError: loginError,
+        handleSignUp: handleSignUp,
+        signUpError: signUpError,
       }}
     >
       {children}
