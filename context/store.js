@@ -33,7 +33,6 @@ const ContextProvider = ({ children }) => {
 
     signInWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
-        // console.log(userCredential, "these are the credentials");
         setToken(userCredential._tokenResponse.idToken);
         AsyncStorage.setItem(
           "userToken",
@@ -42,7 +41,6 @@ const ContextProvider = ({ children }) => {
         setIsAuthLoading(false);
       })
       .catch((error) => {
-        console.log(error.message, "na the error be this");
         setLoginError(error?.message?.split(":")[1] ? error?.message?.split(":")[1] : "Invalid email or passowrd!");
         setIsAuthLoading(false);
       });
