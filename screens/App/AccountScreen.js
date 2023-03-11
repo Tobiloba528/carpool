@@ -28,7 +28,7 @@ const AccountScreen = ({ navigation }) => {
         {
             id: 1,
             label: "Profile settings",
-            onPress: () => navigation.navigate("ProfileScreen")
+            onPress: () => navigation.navigate("ProfileSettings")
           },
           {
             id: 2,

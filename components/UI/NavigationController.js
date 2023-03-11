@@ -1,10 +1,10 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { useNavigation  } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import React from "react";
 
-const NavigationController = ({ title, right = "" }) => {
-    const navigation = useNavigation();
+const NavigationController = ({ title, right = "", onPressRight }) => {
+  const navigation = useNavigation();
   return (
     <View style={styles.topContainer}>
       <View style={styles.topView}>
@@ -22,13 +22,14 @@ const NavigationController = ({ title, right = "" }) => {
       </View>
 
       <View style={styles.topView}>
-        <Text style={[styles.profileNameText, styles.topText]}>
-          {title}
-        </Text>
+        <Text style={[styles.profileNameText, styles.topText]}>{title}</Text>
       </View>
 
       <View style={styles.topView}>
-        <Pressable style={({ pressed }) => pressed && styles.btnPressed}>
+        <Pressable
+          style={({ pressed }) => pressed && styles.btnPressed}
+          onPress={onPressRight}
+        >
           <Text style={[styles.topText, styles.settingsText]}>{right}</Text>
         </Pressable>
       </View>

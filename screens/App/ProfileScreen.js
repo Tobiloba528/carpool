@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   Text,
@@ -14,7 +14,7 @@ import NavigationController from "../../components/UI/NavigationController";
 const ProfileScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.mainContainer}>
-      <NavigationController title={"Tobiloba's profile"} right="settings" />
+      <NavigationController title={"Tobiloba's profile"} right="settings" onPressRight={() => navigation.navigate("ProfileSettings")} />
       <ScrollView>
         <View style={styles.contentContainer}>
           <View style={styles.profileInfoContainer}>

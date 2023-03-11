@@ -23,20 +23,22 @@ import RequestedTripsScreen from "./screens/App/RequestedTripsScreen";
 import TripDetailScreen from "./screens/App/TripDetailScreen";
 import PostRequest from "./screens/App/PostRequest";
 import { useEffect } from "react";
+import ProfileSettings from "./screens/App/ProfileSettings";
+import PersonalDetailsScreen from "./screens/App/PersonalDetailsScreen";
 
 const AuthNavigator = () => {
+  const navigation = useNavigation();
 
-  const navigation = useNavigation()
-
-  const { isAuthLoading, isLoggedIn, token, loginError, signUpError } = contextData();
+  const { isAuthLoading, isLoggedIn, token, loginError, signUpError } =
+    contextData();
 
   useEffect(() => {
-    if(loginError){
+    if (loginError) {
       navigation.navigate("Login");
-    }else if(signUpError){
-      navigation.navigate("Register")
+    } else if (signUpError) {
+      navigation.navigate("Register");
     }
-  }, [])
+  }, []);
 
   return (
     <Stack.Navigator>
@@ -186,6 +188,20 @@ const AppNavigator = () => {
       <Stack.Screen
         name="PostRequest"
         component={PostRequest}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="ProfileSettings"
+        component={ProfileSettings}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="PersonalDetailsScreen"
+        component={PersonalDetailsScreen}
         options={{
           headerShown: false,
         }}
