@@ -4,6 +4,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   createUserWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseApp } from "../http";
@@ -41,7 +42,11 @@ const ContextProvider = ({ children }) => {
         setIsAuthLoading(false);
       })
       .catch((error) => {
-        setLoginError(error?.message?.split(":")[1] ? error?.message?.split(":")[1] : "Invalid email or passowrd!");
+        setLoginError(
+          error?.message?.split(":")[1]
+            ? error?.message?.split(":")[1]
+            : "Invalid email or passowrd!"
+        );
         setIsAuthLoading(false);
       });
   };
@@ -57,11 +62,24 @@ const ContextProvider = ({ children }) => {
           userCredential._tokenResponse.idToken
         );
         setIsAuthLoading(false);
+        updateProfile(auth.currentUser, {
+          displayName: data.fullName,
+        })
+          .then((res) => {
+            console.log(res, "Update");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       })
       .catch((error) => {
-        console.log(error.message.split(":")[1], "sign up error")
+        console.log(error.message.split(":")[1], "sign up error");
         setIsAuthLoading(false);
-        setSignUpError(error?.message?.split(":")[1] ? error?.message?.split(":")[1] : "Error signing up your account!");
+        setSignUpError(
+          error?.message?.split(":")[1]
+            ? error?.message?.split(":")[1]
+            : "Error signing up your account!"
+        );
       });
   };
 

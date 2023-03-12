@@ -19,7 +19,7 @@ import {
 import FindTripButton from "../../components/UI/FindTripButton";
 import NavigationController from "../../components/UI/NavigationController";
 import SecondaryButton from "../../components/UI/SecondaryButton";
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const PostTrip = ({ navigation }) => {
   const [skipVehicle, setSkipVehicle] = useState(false);
@@ -29,220 +29,218 @@ const PostTrip = ({ navigation }) => {
     <SafeAreaView style={styles.mainContainer}>
       <NavigationController title={"Post a trip"} />
       <KeyboardAwareScrollView style={styles.contentContainer}>
-        {/* <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}> */}
-          <Text style={styles.title}>Post a trip</Text>
+        <Text style={styles.title}>Post a trip</Text>
 
-          <View style={styles.space}></View>
+        <View style={styles.space}></View>
 
-          <Text style={styles.subtitle}>Itinerary</Text>
-          <Text style={styles.smallText}>
-            Your origin, destination and stops you're willing to make along the
-            way
+        <Text style={styles.subtitle}>Itinerary</Text>
+        <Text style={styles.smallText}>
+          Your origin, destination and stops you're willing to make along the
+          way
+        </Text>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Origin</Text>
+          <FindTripButton
+            text={"Enter an origin"}
+            onPress={() =>
+              navigation.navigate("SearchAddressScreen", {
+                title: "Enter an origin",
+              })
+            }
+          >
+            <Ionicons name="location-sharp" size={20} color="black" />
+          </FindTripButton>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Destination</Text>
+          <FindTripButton
+            text={"Enter a destination"}
+            onPress={() =>
+              navigation.navigate("SearchAddressScreen", {
+                title: "Enter a destination",
+              })
+            }
+          >
+            <Ionicons name="location-sharp" size={20} color="black" />
+          </FindTripButton>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={[styles.inputLabel, styles.extraMargin]}>Stops</Text>
+            <AntDesign name="questioncircle" size={20} color="black" />
+          </View>
+          <FindTripButton
+            text={"Add a stop to get more bookings"}
+            onPress={() =>
+              navigation.navigate("SearchAddressScreen", {
+                title: "Enter a stop",
+              })
+            }
+          >
+            <Ionicons name="add-circle-outline" size={20} color="black" />
+          </FindTripButton>
+        </View>
+
+        <View style={styles.space}></View>
+
+        <Text style={styles.subtitle}>Ride Schedule</Text>
+        <Text style={styles.smallText}>
+          Enter a precies date and time{" "}
+          <Text style={styles.extraBold}>
+            with am(morning) or pm (afternoon)
           </Text>
+        </Text>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Origin</Text>
-            <FindTripButton
-              text={"Enter an origin"}
-              onPress={() =>
-                navigation.navigate("SearchAddressScreen", {
-                  title: "Enter an origin",
-                })
-              }
-            >
-              <Ionicons name="location-sharp" size={20} color="black" />
-            </FindTripButton>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Destination</Text>
-            <FindTripButton
-              text={"Enter a destination"}
-              onPress={() =>
-                navigation.navigate("SearchAddressScreen", {
-                  title: "Enter a destination",
-                })
-              }
-            >
-              <Ionicons name="location-sharp" size={20} color="black" />
-            </FindTripButton>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={[styles.inputLabel, styles.extraMargin]}>Stops</Text>
-              <AntDesign name="questioncircle" size={20} color="black" />
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Leaving</Text>
+          <View style={styles.scheduleInputContainer}>
+            <View style={styles.dateContainer}>
+              <FindTripButton
+                text={"Departure Date"}
+                style={styles.extraRadius}
+                onPress={() =>
+                  navigation.navigate("SearchAddressScreen", {
+                    title: "Enter an origin",
+                  })
+                }
+              >
+                <FontAwesome name="calendar-o" size={18} color="black" />
+              </FindTripButton>
             </View>
-            <FindTripButton
-              text={"Add a stop to get more bookings"}
-              onPress={() =>
-                navigation.navigate("SearchAddressScreen", {
-                  title: "Enter a stop",
-                })
-              }
-            >
-              <Ionicons name="add-circle-outline" size={20} color="black" />
-            </FindTripButton>
+            <Text style={styles.atText}>at</Text>
+            <View style={styles.timeContainer}>
+              <FindTripButton
+                text={"Time"}
+                style={styles.extraRadius}
+                onPress={() =>
+                  navigation.navigate("SearchAddressScreen", {
+                    title: "Enter an origin",
+                  })
+                }
+              >
+                {/* <FontAwesome name="calendar-o" size={18} color="black" /> */}
+              </FindTripButton>
+            </View>
           </View>
+        </View>
 
-          <View style={styles.space}></View>
+        <View style={styles.space}></View>
 
-          <Text style={styles.subtitle}>Ride Schedule</Text>
-          <Text style={styles.smallText}>
-            Enter a precies date and time{" "}
+        <Text style={styles.subtitle}>Vehicle details</Text>
+        <Text style={styles.smallText}>
+          This helps you get more bookings and makes it easier for passenger to
+          identify your vehicle during pick-up
+        </Text>
+
+        <View style={styles.skipVehicle}>
+          <Checkbox
+            style={styles.checkbox}
+            value={skipVehicle}
+            onValueChange={setSkipVehicle}
+          />
+          <Text style={styles.skipText}>Skip vehicle</Text>
+        </View>
+        {skipVehicle ? (
+          <Text style={styles.skipVehicleText}>
+            {" "}
+            No vehicle will be added to your trip
+          </Text>
+        ) : (
+          <View>
+            <View style={styles.addCarContainer}>
+              {/* <FontAwesome5 name="car-side" size={100} color="#E8E8E8" /> */}
+              <FontAwesome5 name="car" size={100} color="#E8E8E8" />
+              <Text style={styles.addCarText}>Add photo</Text>
+            </View>
+
+            <View style={styles.carInfoItem}>
+              <Text style={styles.carInfoLabel}>Model</Text>
+              <TextInput
+                style={styles.carInfoInput}
+                placeholder="e.g. Ford Forcus "
+              />
+            </View>
+            <View style={styles.carInfoItem}>
+              <Text style={styles.carInfoLabel}>Color</Text>
+              <TextInput style={styles.carInfoInput} placeholder="Green" />
+            </View>
+            <View style={styles.carInfoItem}>
+              <Text style={styles.carInfoLabel}>Color</Text>
+              <TextInput style={styles.carInfoInput} placeholder="SUV" />
+            </View>
+            <View style={styles.carInfoItem}>
+              <Text style={styles.carInfoLabel}>Year</Text>
+              <TextInput style={styles.carInfoInput} placeholder="YYYY" />
+            </View>
+            <View style={styles.carInfoItem}>
+              <Text style={styles.carInfoLabel}>License Plate</Text>
+              <TextInput style={styles.carInfoInput} placeholder="POP123" />
+            </View>
+          </View>
+        )}
+
+        <View style={styles.space}></View>
+        <Text style={styles.subtitle}>Empty Seats</Text>
+        <Text style={styles.smallNote}>
+          <Text style={styles.proTip}>Pro tip: </Text>We recommend putting a
+          maximum of 2 people per row to ensure everyone's comfort
+        </Text>
+        <TextInput
+          style={[styles.carInfoInput, styles.seatAvailable]}
+          placeholder="Select a number"
+        />
+
+        <View style={styles.space}></View>
+
+        <Text style={styles.subtitle}>Pricing</Text>
+        <Text style={styles.smallText}>
+          Enter a fair price per seat to cover your gas and other expenses. Note
+          that all prices are CAD
+        </Text>
+        <Text style={styles.seatPrice}>Price per seat</Text>
+        <View style={styles.seatPriceInputContainer}>
+          <Text>$</Text>
+          <TextInput style={styles.seatPriceInput} />
+        </View>
+
+        <View style={styles.space}></View>
+        <Text style={styles.subtitle}>Trip description</Text>
+        <Text style={styles.smallText}>
+          Add any details relevant to your trip for passengers before the book
+        </Text>
+        <TextInput
+          style={styles.message}
+          multiline
+          placeholder="We recommend writing the exact pick-up and drop-off locations in your description"
+        />
+
+        <View style={styles.terms}>
+          <Checkbox
+            style={styles.checkbox}
+            value={agreeToTerms}
+            onValueChange={setAgreeToTerms}
+          />
+          <Text style={styles.skipText}>
+            I agree to these rules, to the{" "}
+            <Text style={styles.extraUnderline}>
+              Driver Cancellation policy
+            </Text>
+            , <Text style={styles.extraUnderline}>Terms of service</Text> and{" "}
+            <Text style={styles.extraUnderline}>the Privacy Policy</Text> and{" "}
             <Text style={styles.extraBold}>
-              with am(morning) or pm (afternoon)
-            </Text>
-          </Text>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Leaving</Text>
-            <View style={styles.scheduleInputContainer}>
-              <View style={styles.dateContainer}>
-                <FindTripButton
-                  text={"Departure Date"}
-                  style={styles.extraRadius}
-                  onPress={() =>
-                    navigation.navigate("SearchAddressScreen", {
-                      title: "Enter an origin",
-                    })
-                  }
-                >
-                  <FontAwesome name="calendar-o" size={18} color="black" />
-                </FindTripButton>
-              </View>
-              <Text style={styles.atText}>at</Text>
-              <View style={styles.timeContainer}>
-                <FindTripButton
-                  text={"Time"}
-                  style={styles.extraRadius}
-                  onPress={() =>
-                    navigation.navigate("SearchAddressScreen", {
-                      title: "Enter an origin",
-                    })
-                  }
-                >
-                  {/* <FontAwesome name="calendar-o" size={18} color="black" /> */}
-                </FindTripButton>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.space}></View>
-
-          <Text style={styles.subtitle}>Vehicle details</Text>
-          <Text style={styles.smallText}>
-            This helps you get more bookings and makes it easier for passenger
-            to identify your vehicle during pick-up
-          </Text>
-
-          <View style={styles.skipVehicle}>
-            <Checkbox
-              style={styles.checkbox}
-              value={skipVehicle}
-              onValueChange={setSkipVehicle}
-            />
-            <Text style={styles.skipText}>Skip vehicle</Text>
-          </View>
-          {skipVehicle ? (
-            <Text style={styles.skipVehicleText}>
               {" "}
-              No vehicle will be added to your trip
+              I understand that my account could be suspended if I break the
+              rules.
             </Text>
-          ) : (
-            <View>
-              <View style={styles.addCarContainer}>
-                {/* <FontAwesome5 name="car-side" size={100} color="#E8E8E8" /> */}
-                <FontAwesome5 name="car" size={100} color="#E8E8E8" />
-                <Text style={styles.addCarText}>Add photo</Text>
-              </View>
-
-              <View style={styles.carInfoItem}>
-                <Text style={styles.carInfoLabel}>Model</Text>
-                <TextInput
-                  style={styles.carInfoInput}
-                  placeholder="e.g. Ford Forcus "
-                />
-              </View>
-              <View style={styles.carInfoItem}>
-                <Text style={styles.carInfoLabel}>Color</Text>
-                <TextInput style={styles.carInfoInput} placeholder="Green" />
-              </View>
-              <View style={styles.carInfoItem}>
-                <Text style={styles.carInfoLabel}>Color</Text>
-                <TextInput style={styles.carInfoInput} placeholder="SUV" />
-              </View>
-              <View style={styles.carInfoItem}>
-                <Text style={styles.carInfoLabel}>Year</Text>
-                <TextInput style={styles.carInfoInput} placeholder="YYYY" />
-              </View>
-              <View style={styles.carInfoItem}>
-                <Text style={styles.carInfoLabel}>License Plate</Text>
-                <TextInput style={styles.carInfoInput} placeholder="POP123" />
-              </View>
-            </View>
-          )}
-
-          <View style={styles.space}></View>
-          <Text style={styles.subtitle}>Empty Seats</Text>
-          <Text style={styles.smallNote}>
-            <Text style={styles.proTip}>Pro tip: </Text>We recommend putting a
-            maximum of 2 people per row to ensure everyone's comfort
           </Text>
-          <TextInput
-            style={[styles.carInfoInput, styles.seatAvailable]}
-            placeholder="Select a number"
-          />
+        </View>
 
-          <View style={styles.space}></View>
-
-          <Text style={styles.subtitle}>Pricing</Text>
-          <Text style={styles.smallText}>
-            Enter a fair price per seat to cover your gas and other expenses.
-            Note that all prices are CAD
-          </Text>
-          <Text style={styles.seatPrice}>Price per seat</Text>
-          <View style={styles.seatPriceInputContainer}>
-            <Text>$</Text>
-            <TextInput style={styles.seatPriceInput} />
-          </View>
-
-          <View style={styles.space}></View>
-          <Text style={styles.subtitle}>Trip description</Text>
-          <Text style={styles.smallText}>
-            Add any details relevant to your trip for passengers before the book
-          </Text>
-          <TextInput
-            style={styles.message}
-            multiline
-            placeholder="We recommend writing the exact pick-up and drop-off locations in your description"
-          />
-
-          <View style={styles.terms}>
-            <Checkbox
-              style={styles.checkbox}
-              value={agreeToTerms}
-              onValueChange={setAgreeToTerms}
-            />
-            <Text style={styles.skipText}>
-              I agree to these rules, to the{" "}
-              <Text style={styles.extraUnderline}>
-                Driver Cancellation policy
-              </Text>
-              , <Text style={styles.extraUnderline}>Terms of service</Text> and{" "}
-              <Text style={styles.extraUnderline}>the Privacy Policy</Text> and{" "}
-              <Text style={styles.extraBold}>
-                {" "}
-                I understand that my account could be suspended if I break the
-                rules.
-              </Text>
-            </Text>
-          </View>
-
-          <View style={styles.postBtn}>
-            <SecondaryButton isValid={true} title="Post request" radius={10} />
-          </View>
-        {/* </KeyboardAvoidingView> */}
+        <View style={styles.postBtn}>
+          <SecondaryButton isValid={true} title="Post request" radius={10} />
+        </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );

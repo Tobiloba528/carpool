@@ -13,16 +13,13 @@ import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FindTripButton from "../../components/UI/FindTripButton";
 import SecondaryButton from "../../components/UI/SecondaryButton";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const PostRequest = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.mainContainer}>
       <NavigationController title="Post a request" />
-      <ScrollView style={styles.contentContainer}>
-        <KeyboardAvoidingView
-          behavior="position"
-          style={{ flex: 1, paddingBottom: 100 }}
-        >
+      <KeyboardAwareScrollView style={styles.contentContainer}>
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>From</Text>
             <FindTripButton
@@ -87,8 +84,7 @@ const PostRequest = ({ navigation }) => {
           <View style={styles.postBtn}>
             <SecondaryButton isValid={true} title="Post request" radius={10} />
           </View>
-        </KeyboardAvoidingView>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
