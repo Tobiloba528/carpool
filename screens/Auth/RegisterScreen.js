@@ -7,6 +7,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Pressable,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Formik } from "formik";
@@ -16,6 +18,7 @@ import SvgTest from "../../assets/Register";
 import Input from "../../components/UI/Input";
 import SecondaryButton from "../../components/UI/SecondaryButton";
 import { contextData } from "../../context/store";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const RegisterSchema = Yup.object().shape({
   fullName: Yup.string().min(3, "Too Short!").required("Required"),
@@ -31,133 +34,160 @@ const RegisterScreen = ({ navigation }) => {
   const { handleSignUp, signUpError } = contextData();
 
   const handleSubmit = (data) => {
-    handleSignUp(data)
+    handleSignUp(data);
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.screen}>
-      <Formik
-        initialValues={{
-          fullName: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-        }}
-        validationSchema={RegisterSchema}
-        onSubmit={(values) => handleSubmit(values)}
+    <SafeAreaView style={styles.mainContainer}>
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
+        enableAutomaticScroll={Platform.OS === "ios"}
+        contentContainerStyle={styles.contentContainer}
       >
-        {({
-          values,
-          errors,
-          touched,
-          handleSubmit,
-          handleChange,
-          setFieldTouched,
-          isValid,
-        }) => (
-          <KeyboardAvoidingView style={styles.container} behavior="position">
-            {/* <Image source={require('../../assets/login.png')} style={{width: "100%", height: "80%"}}/> */}
-            <Pressable onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back-outline" size={25} />
-            </Pressable>
-            <View style={styles.imageContainer}>
-              <SvgTest />
-            </View>
-            <Text style={styles.title}>Register</Text>
-            <Input
-              placeholder={"Full name"}
-              icon={
-                <Ionicons name="person-outline" size={25} style={styles.icon} />
-              }
-              value={values.fullName}
-              handleChange={handleChange}
-              name="fullName"
-              error={errors.fullName}
-              setFieldTouched={setFieldTouched}
-              touched={touched.fullName}
-              authError={signUpError}
-            />
-            <Input
-              placeholder={"Email"}
-              icon={
-                <Ionicons name="mail-outline" size={25} style={styles.icon} />
-              }
-              keyboardType="email-address"
-              value={values.email}
-              handleChange={handleChange}
-              name="email"
-              error={errors.email}
-              setFieldTouched={setFieldTouched}
-              touched={touched.email}
-            />
-            <Input
-              placeholder={"Password"}
-              icon={
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={25}
-                  style={styles.icon}
-                />
-              }
-              inputType="password"
-              value={values.password}
-              handleChange={handleChange}
-              name="password"
-              error={errors.password}
-              setFieldTouched={setFieldTouched}
-              touched={touched.password}
-            />
-            <Input
-              placeholder={"Confirm Password"}
-              icon={
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={25}
-                  style={styles.icon}
-                />
-              }
-              inputType="password"
-              value={values.confirmPassword}
-              handleChange={handleChange}
-              name="confirmPassword"
-              error={errors.confirmPassword}
-              setFieldTouched={setFieldTouched}
-              touched={touched.confirmPassword}
-            />
-            <SecondaryButton
-              title={"Register"}
-              onPress={handleSubmit}
-              isValid={isValid}
-            />
-            <View style={styles.bottom}>
-              <Text>Already a user?</Text>
+        <Formik
+          initialValues={{
+            fullName: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+          }}
+          validationSchema={RegisterSchema}
+          onSubmit={(values) => handleSubmit(values)}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleSubmit,
+            handleChange,
+            setFieldTouched,
+            isValid,
+          }) => (
+            <View style={styles.container}>
+              {/* <Image source={require('../../assets/login.png')} style={{width: "100%", height: "80%"}}/> */}
               <Pressable
-                style={({ pressed }) => pressed && styles.pressed}
                 onPress={() => navigation.goBack()}
+                style={styles.backIcon}
               >
-                <Text style={styles.bottomLink}>Login</Text>
+                <Ionicons name="arrow-back-outline" size={25} />
               </Pressable>
+              <View style={styles.imageContainer}>
+                <SvgTest />
+              </View>
+              <Text style={styles.title}>Register</Text>
+              <Input
+                placeholder={"Full name"}
+                icon={
+                  <Ionicons
+                    name="person-outline"
+                    size={25}
+                    style={styles.icon}
+                  />
+                }
+                value={values.fullName}
+                handleChange={handleChange}
+                name="fullName"
+                error={errors.fullName}
+                setFieldTouched={setFieldTouched}
+                touched={touched.fullName}
+                authError={signUpError}
+              />
+              <Input
+                placeholder={"Email"}
+                icon={
+                  <Ionicons name="mail-outline" size={25} style={styles.icon} />
+                }
+                keyboardType="email-address"
+                value={values.email}
+                handleChange={handleChange}
+                name="email"
+                error={errors.email}
+                setFieldTouched={setFieldTouched}
+                touched={touched.email}
+              />
+              <Input
+                placeholder={"Password"}
+                icon={
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={25}
+                    style={styles.icon}
+                  />
+                }
+                inputType="password"
+                value={values.password}
+                handleChange={handleChange}
+                name="password"
+                error={errors.password}
+                setFieldTouched={setFieldTouched}
+                touched={touched.password}
+              />
+              <Input
+                placeholder={"Confirm Password"}
+                icon={
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={25}
+                    style={styles.icon}
+                  />
+                }
+                inputType="password"
+                value={values.confirmPassword}
+                handleChange={handleChange}
+                name="confirmPassword"
+                error={errors.confirmPassword}
+                setFieldTouched={setFieldTouched}
+                touched={touched.confirmPassword}
+              />
+
+              <SecondaryButton
+                title={"Register"}
+                onPress={handleSubmit}
+                isValid={isValid}
+              />
+              <View style={styles.bottom}>
+                <Text>Already a user?</Text>
+                <Pressable
+                  style={({ pressed }) => pressed && styles.pressed}
+                  onPress={() => navigation.goBack()}
+                >
+                  <Text style={styles.bottomLink}>Login</Text>
+                </Pressable>
+              </View>
             </View>
-          </KeyboardAvoidingView>
-        )}
-      </Formik>
-    </ScrollView>
+          )}
+        </Formik>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: {
+  mainContainer: {
     flex: 1,
+    backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+
+  contentContainer: {
+    flex: 1,
+    // backgroundColor: "red",
+    // marginTop: 30
   },
   container: {
     flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 20,
+    // backgroundColor: "blue",
+    padding: 20,
+    // justifyContent: "center",
+  },
+  backIcon: {
+    // marginTop: 30,
+    width: "100%",
   },
   imageContainer: {
-    height: "32%",
+    height: Platform.OS === "android" ? "20%" : "30%",
     width: "80%",
-    // marginTop: 40,
+    marginTop: Platform.OS === "android" ? 20 : 30,
     alignSelf: "center",
   },
   title: {

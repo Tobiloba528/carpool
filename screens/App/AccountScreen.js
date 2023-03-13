@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   StyleSheet,
   ScrollView,
+  Platform, StatusBar
 } from "react-native";
 import AccountList from "../../components/AccountList";
 import TopTitle from "../../components/UI/TopTitle";
@@ -106,6 +107,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   layer: {
     backgroundColor: "#F4F4F4",

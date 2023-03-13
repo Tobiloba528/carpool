@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, StyleSheet, Pressable } from "react-native";
+import { Text, View, StyleSheet, Pressable, Platform, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import FindTripButton from "../../components/UI/FindTripButton";
@@ -46,7 +46,7 @@ const FindTrip = ({ navigation }) => {
           title={"Search"}
           isValid
           bgColor="#3B444B"
-          radius="15"
+          radius={15}
           onPress={() => navigation.navigate("RequestedTripsScreen")}
         />
       </View>
@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     backgroundColor: "white",
     flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   contentContainer: {
     paddingHorizontal: 10,

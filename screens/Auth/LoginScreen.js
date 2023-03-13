@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Pressable,
   Alert,
+  Platform,
+ StatusBar
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Formik } from "formik";
@@ -17,6 +19,7 @@ import SvgTest from "../../assets/login";
 import Input from "../../components/UI/Input";
 import SecondaryButton from "../../components/UI/SecondaryButton";
 import { contextData } from "../../context/store";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email Required"),
@@ -30,8 +33,11 @@ const LoginScreen = ({ navigation }) => {
     handleLogin(values);
   };
 
+  
+
   return (
-    <ScrollView contentContainerStyle={styles.screen}>
+    <SafeAreaView style={styles.mainContainer}>
+    <KeyboardAwareScrollView contentContainerStyle={styles.contentContainer} style={styles.contentContainer}>
       <Formik
         initialValues={{
           email: "",
@@ -49,9 +55,9 @@ const LoginScreen = ({ navigation }) => {
           setFieldTouched,
           isValid,
         }) => (
-          <KeyboardAvoidingView style={styles.container} behavior="position">
+          <View style={styles.container}>
             {/* <Image source={require('../../assets/login.png')} style={{width: "100%", height: "80%"}}/> */}
-            <Pressable onPress={() => navigation.goBack()}>
+            <Pressable onPress={() => navigation.goBack()} style={styles.backIcon}>
               <Ionicons name="arrow-back-outline" size={25} />
             </Pressable>
             <View style={styles.imageContainer}>
@@ -71,7 +77,6 @@ const LoginScreen = ({ navigation }) => {
               authError={loginError}
               setFieldTouched={setFieldTouched}
               touched={touched.email}
-
             />
 
             <Input
@@ -108,27 +113,40 @@ const LoginScreen = ({ navigation }) => {
                 <Text style={styles.bottomLink}>Register</Text>
               </Pressable>
             </View>
-          </KeyboardAvoidingView>
+          </View>
         )}
       </Formik>
-    </ScrollView>
+    </KeyboardAwareScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: {
+  mainContainer: {
     flex: 1,
+    backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+  },
+  contentContainer: {
+    flex: 1,
+    paddingTop: 20,
+    paddingBottom: 20,
   },
   container: {
     flex: 1,
-    justifyContent: "center",
+    // justifyContent: "center",
     paddingHorizontal: 20,
   },
+  backIcon: {
+    // marginTop: 30,
+    width: "100%"
+  },
   imageContainer: {
-    height: "40%",
+    height: "30%",
     width: "80%",
-    // marginTop: 40,
     alignSelf: "center",
+    marginTop: 30
+    // backgroundColor: "red"
   },
   title: {
     fontWeight: "bold",

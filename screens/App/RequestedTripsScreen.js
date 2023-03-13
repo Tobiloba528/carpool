@@ -8,6 +8,7 @@ import {
   RefreshControl,
   ScrollView,
   Image,
+  Platform, StatusBar
 } from "react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import React, { useState, useCallback } from "react";
@@ -242,6 +243,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     backgroundColor: "white",
     flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   contentContainer: {
     flex: 1,

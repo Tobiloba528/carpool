@@ -1,5 +1,12 @@
 import { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  Platform,
+  StatusBar,
+} from "react-native";
 import LottieView from "lottie-react-native";
 
 import PrimaryButton from "../../components/UI/PrimaryButton";
@@ -26,7 +33,7 @@ const PreviewScreen = ({ navigation }) => {
           source={require("../../assets/lottie/carpool.json")}
           style={styles.lottie}
           duration={4000}
-          autoPlay
+          // autoPlay
           loop={false}
         />
       </View>
@@ -40,7 +47,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 50
+    marginBottom: 50,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   title: {
     fontWeight: "bold",

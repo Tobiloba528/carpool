@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   KeyboardAvoidingView,
+  Platform, StatusBar
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import {
@@ -250,6 +251,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   contentContainer: {
     flex: 1,

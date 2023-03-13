@@ -6,7 +6,7 @@ const SecondaryButton = ({ title, onPress, isValid, bgColor = "#006A61", radius=
       onPress={onPress}
       style={({ pressed }) => [
         styles.container,
-        {backgroundColor: bgColor, borderRadius: radius},
+        {backgroundColor: bgColor, borderRadius: radius },
         pressed && styles.pressed,
         !isValid && styles.notValid,
       ]}

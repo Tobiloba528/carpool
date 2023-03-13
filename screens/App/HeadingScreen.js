@@ -1,4 +1,4 @@
-import { Text, View, Button, SafeAreaView, Pressable, StyleSheet } from "react-native";
+import { Text, View, Button, SafeAreaView, Pressable, StyleSheet, Platform, StatusBar } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import HeadingItem from "../../components/UI/HeadingItem";
 
@@ -25,7 +25,8 @@ const HeadingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white"
+    backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   title: {
     paddingHorizontal: 15,

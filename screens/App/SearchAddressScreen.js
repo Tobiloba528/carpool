@@ -1,13 +1,14 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, Platform, StatusBar } from "react-native";
 import React from "react";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import SecondaryInput from "../../components/UI/SecondaryInput";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const SearchAddressScreen = ({ navigation, route }) => {
 
     const { title } = route.params;
   return (
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer}>
       <View style={styles.topContainer}>
         <View style={styles.topView}>
           <Pressable
@@ -29,7 +30,7 @@ const SearchAddressScreen = ({ navigation, route }) => {
         <SecondaryInput />
         <Text style={styles.inputText}>Enter at least three characters to get started</Text>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -37,7 +38,8 @@ const styles = StyleSheet.create({
     mainContainer: {
         paddingHorizontal: 10,
         backgroundColor: "white",
-        flex: 1
+        flex: 1,
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
     },
 
     topContainer: {

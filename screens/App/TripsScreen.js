@@ -1,4 +1,4 @@
-import { Button, SafeAreaView, Text, View, StyleSheet } from "react-native";
+import { Button, SafeAreaView, Text, View, StyleSheet, Platform, StatusBar } from "react-native";
 import React, { useState } from 'react';
 import CustomTab from "../../components/UI/CustomTab";
 import TopTitle from "../../components/UI/TopTitle";
@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
 });
 

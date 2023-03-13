@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   Image,
+  Platform, StatusBar
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import React from "react";
@@ -126,6 +127,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     backgroundColor: "white",
     flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   layer: {
     backgroundColor: "#F4F4F4",

@@ -6,6 +6,7 @@ import {
   TextInput,
   Pressable,
   KeyboardAvoidingView,
+  Platform, StatusBar
 } from "react-native";
 import React from "react";
 import NavigationController from "../../components/UI/NavigationController";
@@ -93,6 +94,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   contentContainer: {
     flex: 1,

@@ -4,10 +4,12 @@ import {
   signInWithEmailAndPassword,
   signOut,
   createUserWithEmailAndPassword,
-  updateProfile,
+  updateProfile,r
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { firebaseApp } from "../http";
+import { firebaseApp, db } from "../http";
+import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+
 
 const AppContext = createContext({
   token: null,
@@ -26,7 +28,7 @@ const ContextProvider = ({ children }) => {
   const [loginError, setLoginError] = useState(null);
   const [signUpError, setSignUpError] = useState(null);
 
-  console.log(token, "this is the token");
+  // console.log(token, "this is the token");
 
   const auth = getAuth(firebaseApp);
   const handleLogin = (data) => {
@@ -56,24 +58,24 @@ const ContextProvider = ({ children }) => {
 
     createUserWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
+        console.log( "Lets see", userCredential._tokenResponse.localId, userCredential.user.uid)
         setToken(userCredential._tokenResponse.idToken);
         AsyncStorage.setItem(
           "userToken",
           userCredential._tokenResponse.idToken
         );
         setIsAuthLoading(false);
-        updateProfile(auth.currentUser, {
-          displayName: data.fullName,
+
+        const names = data?.fullName.split(" ");
+        setDoc(doc(db, "users", "145"), {
+          firstName: names[0],
+          lastName: names[1] ? names[1] : "",
         })
-          .then((res) => {
-            console.log(res, "Update");
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+          .then((res) => console.log("user data created"))
+          .catch((error) => console.log(error, "user data setting error"));
+          return;
       })
       .catch((error) => {
-        console.log(error.message.split(":")[1], "sign up error");
         setIsAuthLoading(false);
         setSignUpError(
           error?.message?.split(":")[1]
