@@ -1,15 +1,16 @@
 import React, { useState, useContext, createContext } from "react";
+import jwt_decode from "jwt-decode";
 import {
   getAuth,
   signInWithEmailAndPassword,
   signOut,
   createUserWithEmailAndPassword,
-  updateProfile,r
+  updateProfile,
+  onAuthStateChanged,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseApp, db } from "../http";
-import { collection, addDoc, doc, setDoc } from "firebase/firestore";
-
+import { collection, addDoc, getDoc, doc, setDoc } from "firebase/firestore";
 
 const AppContext = createContext({
   token: null,
@@ -20,6 +21,11 @@ const AppContext = createContext({
   isAuthLoading: false,
   loginError: null,
   signUpError: null,
+  handleUserInfoCreation: () => {},
+  userId: null,
+  loadingUserData: false,
+  getUserData: () => {},
+  handleUserUpdate: () => {}
 });
 
 const ContextProvider = ({ children }) => {
@@ -27,6 +33,8 @@ const ContextProvider = ({ children }) => {
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [loginError, setLoginError] = useState(null);
   const [signUpError, setSignUpError] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [loadingUserData, setLoadingUserData] = useState(false);
 
   // console.log(token, "this is the token");
 
@@ -36,6 +44,7 @@ const ContextProvider = ({ children }) => {
 
     signInWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
+        setUserId(userCredential.user.uid);
         setToken(userCredential._tokenResponse.idToken);
         AsyncStorage.setItem(
           "userToken",
@@ -58,7 +67,7 @@ const ContextProvider = ({ children }) => {
 
     createUserWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
-        console.log( "Lets see", userCredential._tokenResponse.localId, userCredential.user.uid)
+        setUserId(userCredential.user.uid);
         setToken(userCredential._tokenResponse.idToken);
         AsyncStorage.setItem(
           "userToken",
@@ -66,14 +75,10 @@ const ContextProvider = ({ children }) => {
         );
         setIsAuthLoading(false);
 
-        const names = data?.fullName.split(" ");
-        setDoc(doc(db, "users", "145"), {
-          firstName: names[0],
-          lastName: names[1] ? names[1] : "",
-        })
-          .then((res) => console.log("user data created"))
-          .catch((error) => console.log(error, "user data setting error"));
-          return;
+        const usersRef = collection(db, "users");
+        setDoc(doc(usersRef, userCredential.user.uid), {
+          name: data.fullName,
+        }).catch((error) => console.log("error again", error));
       })
       .catch((error) => {
         setIsAuthLoading(false);
@@ -91,6 +96,10 @@ const ContextProvider = ({ children }) => {
       let userToken = await AsyncStorage.getItem("userToken");
       setToken(userToken);
       setIsAuthLoading(false);
+
+      var decoded = jwt_decode(userToken);
+      setUserId(decoded.user_id);
+      // console.log("THE USERID", decoded.user_id);
     } catch (error) {
       console.log(error);
       setIsAuthLoading(false);
@@ -111,6 +120,35 @@ const ContextProvider = ({ children }) => {
       });
   };
 
+  const getUserData = async () => {
+    setLoadingUserData(true);
+    const docRef = doc(db, "users", userId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      setLoadingUserData(false);
+      console.log("Document data:", docSnap.data().name);
+
+      const data = await docSnap.data();
+      return { ...data };
+    } else {
+      console.log("No such document!");
+      setLoadingUserData(false);
+    }
+  };
+
+  const handleUserUpdate = (data) => {
+    const usersRef = collection(db, "users");
+    setDoc(doc(usersRef, userId), {
+      ...data,
+    })
+      .then((res) => {
+        getUserData()
+        console.log("USER SAVED SUCCESSFULLY.")
+      })
+      .catch((error) => console.log("error again", error));
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -122,6 +160,10 @@ const ContextProvider = ({ children }) => {
         loginError: loginError,
         handleSignUp: handleSignUp,
         signUpError: signUpError,
+        userId: userId,
+        loadingUserData: loadingUserData,
+        getUserData: getUserData,
+        handleUserUpdate: handleUserUpdate
       }}
     >
       {children}

@@ -1,8 +1,9 @@
 import { Button, SafeAreaView, Text, View, StyleSheet, Platform, StatusBar } from "react-native";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CustomTab from "../../components/UI/CustomTab";
 import TopTitle from "../../components/UI/TopTitle";
 import TripList from "../../components/UI/TripList";
+import { contextData } from "../../context/store";
 
 const TripsScreen = ({ navigation }) => {
   const [items, setItems] = useState([
@@ -10,6 +11,8 @@ const TripsScreen = ({ navigation }) => {
     { id: 2, active: false, title: "Recent" },
     { id: 3, active: false, title: "Cancelled" },
   ]);
+
+  
   return (
     <SafeAreaView style={styles.container}>
       <TopTitle />

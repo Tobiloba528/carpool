@@ -9,9 +9,11 @@ import {
   Pressable,
   Switch,
   KeyboardAvoidingView,
-  Platform, StatusBar
+  Platform,
+  StatusBar,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import NavigationController from "../../components/UI/NavigationController";
 import DatePicker, {
   getToday,
@@ -20,6 +22,7 @@ import DatePicker, {
 import { Dropdown } from "react-native-element-dropdown";
 import SecondaryButton from "../../components/UI/SecondaryButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { contextData } from "../../context/store";
 
 const data = [
   { label: "Male", value: "male" },
@@ -28,25 +31,77 @@ const data = [
 ];
 
 const PersonalDetailsScreen = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedDate, setSelectedDate] = useState(getFormatedDate(new Date()));
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [isDriver, setIsDriver] = useState(false);
   const [gender, setGender] = useState("male");
   const [isFocus, setIsFocus] = useState(false);
 
+  const { loadingUserData, getUserData, userId, handleUserUpdate } =
+    contextData();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await getUserData();
+        console.log("user data", userData);
+        const names = userData?.name ? userData?.name?.split(" ") : ["", ""];
+        setFirstName(names[0]);
+        setLastName(names[1]);
+        setDescription(userData?.description ? userData?.description : "");
+        const dob = userData?.date_of_birth
+          ? getFormatedDate(new Date(userData?.date_of_birth))
+          : getFormatedDate(new Date());
+        setSelectedDate(dob);
+        const userType = userData?.user_type && userData?.user_type === "driver" ? true : false
+        setIsDriver(userType)
+        setGender(userData?.gender ? userData?.gender : "male")
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchUserData();
+  }, [userId]);
+
+  const handleSubmit = () => {
+    handleUserUpdate({
+      name: `${firstName} ${lastName}`,
+      date_of_birth: selectedDate,
+      description: description,
+      gender: gender,
+      user_type: isDriver ? "driver" : "user",
+    });
+  };
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <NavigationController title={"Personal details"} right="" />
+      {loadingUserData ? (
+        <View style={styles.loading}>
+          <ActivityIndicator size={"large"} />
+        </View>
+      ) : (
         <KeyboardAwareScrollView style={styles.contentContainer}>
           <Text style={styles.title}>Personal Details</Text>
           <View style={styles.inputItem}>
             <Text style={styles.inputLabel}>First Name</Text>
-            <TextInput style={styles.input} />
+            <TextInput
+              style={styles.input}
+              value={firstName}
+              onChangeText={(text) => setFirstName(text)}
+            />
           </View>
 
           <View style={styles.inputItem}>
             <Text style={styles.inputLabel}>Last Name</Text>
-            <TextInput style={styles.input} />
+            <TextInput
+              style={styles.input}
+              value={lastName}
+              onChangeText={(text) => setLastName(text)}
+            />
           </View>
 
           <View style={styles.inputItem}>
@@ -61,11 +116,13 @@ const PersonalDetailsScreen = () => {
 
           <View style={styles.inputItem}>
             <Text style={styles.inputLabel}>Description</Text>
-            <TextInput style={styles.message} multiline />
+            <TextInput
+              style={styles.message}
+              multiline
+              value={description}
+              onChangeText={(text) => setDescription(text)}
+            />
           </View>
-
-
-
 
           <View style={styles.inputItem}>
             <Text style={styles.inputLabel}>Gender</Text>
@@ -105,6 +162,7 @@ const PersonalDetailsScreen = () => {
               isValid={true}
               title="Update profile"
               radius={10}
+              onPress={handleSubmit}
             />
           </View>
 
@@ -136,6 +194,7 @@ const PersonalDetailsScreen = () => {
             </View>
           </Modal>
         </KeyboardAwareScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -144,7 +203,13 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "white",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   contentContainer: {
