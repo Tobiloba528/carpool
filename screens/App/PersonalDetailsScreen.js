@@ -25,9 +25,10 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { contextData } from "../../context/store";
 
 const data = [
-  { label: "Male", value: "male" },
-  { label: "Female", value: "female" },
-  { label: "Other", value: "other" },
+  { label: "Male", value: "Male" },
+  { label: "Female", value: "Female" },
+  { label: "Other", value: "Other" },
+  { label: "Choose", value: "N/A" },
 ];
 
 const PersonalDetailsScreen = () => {
@@ -37,8 +38,9 @@ const PersonalDetailsScreen = () => {
   const [selectedDate, setSelectedDate] = useState(getFormatedDate(new Date()));
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [isDriver, setIsDriver] = useState(false);
-  const [gender, setGender] = useState("male");
+  const [gender, setGender] = useState("N/A");
   const [isFocus, setIsFocus] = useState(false);
+  const [userImg, setUserImg] = useState();
 
   const { loadingUserData, getUserData, userId, handleUserUpdate } =
     contextData();
@@ -59,6 +61,7 @@ const PersonalDetailsScreen = () => {
         const userType = userData?.user_type && userData?.user_type === "driver" ? true : false
         setIsDriver(userType)
         setGender(userData?.gender ? userData?.gender : "male")
+        setUserImg(userData?.user_img !== null && userData?.user_img)
       } catch (error) {
         console.log(error);
       }
@@ -73,6 +76,7 @@ const PersonalDetailsScreen = () => {
       description: description,
       gender: gender,
       user_type: isDriver ? "driver" : "user",
+      user_img: userImg || null
     });
   };
 

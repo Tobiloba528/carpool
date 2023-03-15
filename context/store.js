@@ -7,10 +7,22 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   onAuthStateChanged,
+  deleteUser,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseApp, db } from "../http";
-import { collection, addDoc, getDoc, doc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDoc,
+  doc,
+  setDoc,
+  Timestamp,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { Alert } from "react-native";
+import moment from "moment";
 
 const AppContext = createContext({
   token: null,
@@ -25,7 +37,8 @@ const AppContext = createContext({
   userId: null,
   loadingUserData: false,
   getUserData: () => {},
-  handleUserUpdate: () => {}
+  handleUserUpdate: () => {},
+  handleDeleteUser: () => {},
 });
 
 const ContextProvider = ({ children }) => {
@@ -39,6 +52,8 @@ const ContextProvider = ({ children }) => {
   // console.log(token, "this is the token");
 
   const auth = getAuth(firebaseApp);
+
+  // FUNCTION THAT HANDLES LOGIN
   const handleLogin = (data) => {
     setIsAuthLoading(true);
 
@@ -62,6 +77,7 @@ const ContextProvider = ({ children }) => {
       });
   };
 
+  // FUNCTION THAT HANDLES SIGN UP
   const handleSignUp = (data) => {
     setIsAuthLoading(true);
 
@@ -78,6 +94,12 @@ const ContextProvider = ({ children }) => {
         const usersRef = collection(db, "users");
         setDoc(doc(usersRef, userCredential.user.uid), {
           name: data.fullName,
+          createdAt: moment(new Date()).format("MMMM, YYYY"),
+          user_img: null,
+          description: "",
+          date_of_birth: null,
+          user_type: "user",
+          gender: "N/A",
         }).catch((error) => console.log("error again", error));
       })
       .catch((error) => {
@@ -90,6 +112,7 @@ const ContextProvider = ({ children }) => {
       });
   };
 
+  // FUNCTION THAT PERSIST LOGGED IN USER
   const isLoggedIn = async () => {
     setIsAuthLoading(true);
     try {
@@ -106,6 +129,7 @@ const ContextProvider = ({ children }) => {
     }
   };
 
+  // FUNCTION THAT HANDLES LOGOUT
   const handleLogout = () => {
     setIsAuthLoading(true);
     signOut(auth)
@@ -120,6 +144,29 @@ const ContextProvider = ({ children }) => {
       });
   };
 
+  // FUNCTION THAT HANDLES CLOSING USER ACCOUNT
+  const handleDeleteUser = () => {
+    setIsAuthLoading(true);
+    deleteUser(auth.currentUser)
+      .then(() => {
+        AsyncStorage.removeItem("userToken");
+        setToken(null);
+        setIsAuthLoading(false);
+
+        const usersRef = collection(db, "users");
+        deleteDoc(doc(usersRef, userId))
+          .then((res) => {
+            console.log("USER DATA DELETED")})
+          .catch((error) => console.log("error again", error))
+          
+      })
+      .catch((error) => {
+        setIsAuthLoading(false);
+      });
+    }
+
+
+  // FUNCTION THAT HANDLES USER FETCHING
   const getUserData = async () => {
     setLoadingUserData(true);
     const docRef = doc(db, "users", userId);
@@ -137,14 +184,19 @@ const ContextProvider = ({ children }) => {
     }
   };
 
+  // FUNCTION THAT HANDLES USER UPDATE
   const handleUserUpdate = (data) => {
     const usersRef = collection(db, "users");
-    setDoc(doc(usersRef, userId), {
+    updateDoc(doc(usersRef, userId), {
       ...data,
     })
       .then((res) => {
-        getUserData()
-        console.log("USER SAVED SUCCESSFULLY.")
+        // getUserData()
+        console.log("USER SAVED SUCCESSFULLY.");
+        Alert.alert(
+          "Profile Update",
+          "Your profile has been successfully updated!"
+        );
       })
       .catch((error) => console.log("error again", error));
   };
@@ -163,7 +215,8 @@ const ContextProvider = ({ children }) => {
         userId: userId,
         loadingUserData: loadingUserData,
         getUserData: getUserData,
-        handleUserUpdate: handleUserUpdate
+        handleUserUpdate: handleUserUpdate,
+        handleDeleteUser: handleDeleteUser,
       }}
     >
       {children}

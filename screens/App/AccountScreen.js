@@ -14,7 +14,7 @@ import { contextData } from "../../context/store";
 
 
 const AccountScreen = ({ navigation }) => {
-  const { handleLogout } = contextData()
+  const { handleLogout, handleDeleteUser } = contextData()
 
     const profileList = [
         {
@@ -31,15 +31,20 @@ const AccountScreen = ({ navigation }) => {
             label: "Profile settings",
             onPress: () => navigation.navigate("ProfileSettings")
           },
-          {
-            id: 2,
-            label: "ID verification",
-            onPress: () => navigation.navigate("ProfileScreen")
-          },
+          // {
+          //   id: 2,
+          //   label: "ID verification",
+          //   onPress: () => navigation.navigate("ProfileScreen")
+          // },
           {
             id: 3,
             label: "Notifications",
-            onPress: () => navigation.navigate("ProfileScreen")
+            onPress: () => navigation.navigate("NotificationScreen")
+          },
+          {
+            id: 4,
+            label: "About",
+            onPress: () => navigation.navigate("AboutScreen")
           },
       ]
 
@@ -75,7 +80,7 @@ const AccountScreen = ({ navigation }) => {
           {
             id: 2,
             label: "Close your account",
-            onPress: () => navigation.navigate("ProfileScreen"),
+            onPress: handleDeleteUser,
             red: true
           },
       ]
@@ -92,7 +97,7 @@ const AccountScreen = ({ navigation }) => {
           </View>
           <AccountList items={profileList} />
           <AccountList items={firstArray} />
-          <AccountList items={secondArray} />
+          {/* <AccountList items={secondArray} /> */}
           <AccountList items={thirdArray} noMargin={true} />
           <View style={styles.version}>
                 <Text style={styles.versionText}>Version 1.0.0</Text>
