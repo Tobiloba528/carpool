@@ -22,6 +22,8 @@ import { contextData } from "../../context/store";
 import { getAge } from "../../utils";
 import RBSheet from "react-native-raw-bottom-sheet";
 import * as ImagePicker from "expo-image-picker";
+import { storage } from "../../http";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const ProfileScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState("");
@@ -30,9 +32,15 @@ const ProfileScreen = ({ navigation }) => {
   const [gender, setGender] = useState(null);
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
+  const [imageUri, setImageUri] = useState(null);
 
-  const { loadingUserData, getUserData, userId, handleUserUpdate } =
-    contextData();
+  const {
+    loadingUserData,
+    getUserData,
+    userId,
+    handleUserUpdate,
+    updatingUserData,
+  } = contextData();
   const isFocused = useIsFocused();
   const refRBSheet = useRef();
 
@@ -45,6 +53,7 @@ const ProfileScreen = ({ navigation }) => {
         setFirstName(names[0]);
         setGender(userData?.gender);
         setDescription(userData.description);
+        setImageUri(userData?.profile_picture);
 
         const date = userData?.createdAt;
         // console.log("CREATED AT", date);
@@ -59,12 +68,28 @@ const ProfileScreen = ({ navigation }) => {
       }
     };
     fetchUserData();
-  }, [userId, isFocused]);
+  }, [userId, isFocused, updatingUserData]);
 
+  const handleSaveImage = async (imageUri) => {
+    const img = await fetch(imageUri);
+    const blob = await img.blob();
+    let filename = imageUri?.substring(imageUri?.lastIndexOf("/") + 1);
+    console.log(filename);
 
-  
+    const storageRef = ref(storage, `${filename}`);
 
-
+    uploadBytes(storageRef, blob)
+      .then((snapshot) => {
+        getDownloadURL(storageRef)
+          .then((url) => {
+            handleUserUpdate({ profile_picture: url });
+            // console.log("THE URL", url);
+          })
+          .catch((error) => console.log(error));
+        console.log("Uploaded a blob or file!");
+      })
+      .catch((error) => console.log(error));
+  };
 
   const takePhotoFromCamera = async () => {
     try {
@@ -82,6 +107,7 @@ const ProfileScreen = ({ navigation }) => {
 
         if (!result.canceled) {
           setImage(result.assets[0].uri);
+          handleSaveImage(result.assets[0].uri);
           closeButtomSheet();
         }
       } else {
@@ -113,6 +139,7 @@ const ProfileScreen = ({ navigation }) => {
 
         if (!result.canceled) {
           setImage(result.assets[0].uri);
+          handleSaveImage(result.assets[0].uri);
           closeButtomSheet();
         }
       } else {
@@ -159,7 +186,9 @@ const ProfileScreen = ({ navigation }) => {
                   /> */}
                       <ImageBackground
                         source={{
-                          uri: image
+                          uri: imageUri
+                            ? imageUri
+                            : image
                             ? image
                             : "https://imebehavioralhealth.com/wp-content/uploads/2021/10/user-icon-placeholder-1.png",
                         }}
@@ -281,6 +310,11 @@ const ProfileScreen = ({ navigation }) => {
               </Pressable>
             </View>
           </RBSheet>
+        </View>
+      )}
+      {updatingUserData && (
+        <View style={styles.loading2}>
+          <ActivityIndicator size={"large"} />
         </View>
       )}
     </SafeAreaView>
@@ -411,6 +445,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     fontSize: 17,
+  },
+  loading2: {
+    flex: 1,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    opacity: 0.5,
+    backgroundColor: "black",
   },
 });
 

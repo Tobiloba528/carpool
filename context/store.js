@@ -39,6 +39,11 @@ const AppContext = createContext({
   getUserData: () => {},
   handleUserUpdate: () => {},
   handleDeleteUser: () => {},
+  updatingUserData: false,
+  userData: {},
+  handleSaveTrip: () => {},
+  loadingSaveTrip: false,
+  tripSaved: false
 });
 
 const ContextProvider = ({ children }) => {
@@ -47,7 +52,11 @@ const ContextProvider = ({ children }) => {
   const [loginError, setLoginError] = useState(null);
   const [signUpError, setSignUpError] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [userData, setUserData] = useState({});
   const [loadingUserData, setLoadingUserData] = useState(false);
+  const [updatingUserData, setUpdatingUserData] = useState(false);
+  const [loadingSaveTrip, setLoadingSaveTrip] = useState(false);
+  const [tripSaved, setTripSaved] = useState(false);
 
   // console.log(token, "this is the token");
 
@@ -156,15 +165,14 @@ const ContextProvider = ({ children }) => {
         const usersRef = collection(db, "users");
         deleteDoc(doc(usersRef, userId))
           .then((res) => {
-            console.log("USER DATA DELETED")})
-          .catch((error) => console.log("error again", error))
-          
+            console.log("USER DATA DELETED");
+          })
+          .catch((error) => console.log("error again", error));
       })
       .catch((error) => {
         setIsAuthLoading(false);
       });
-    }
-
+  };
 
   // FUNCTION THAT HANDLES USER FETCHING
   const getUserData = async () => {
@@ -186,6 +194,7 @@ const ContextProvider = ({ children }) => {
 
   // FUNCTION THAT HANDLES USER UPDATE
   const handleUserUpdate = (data) => {
+    setUpdatingUserData(true);
     const usersRef = collection(db, "users");
     updateDoc(doc(usersRef, userId), {
       ...data,
@@ -197,8 +206,33 @@ const ContextProvider = ({ children }) => {
           "Profile Update",
           "Your profile has been successfully updated!"
         );
+        setUpdatingUserData(false);
       })
-      .catch((error) => console.log("error again", error));
+      .catch((error) => {
+        setUpdatingUserData(false);
+        console.log("error again", error);
+      });
+  };
+
+  // <------------------------------------------------------------------------>
+
+  const handleSaveTrip = (data) => {
+    // console.log(data)
+    setLoadingSaveTrip(true)
+    const tripsRef = collection(db, "trips");
+    addDoc(tripsRef, {
+        creator: userId,
+        passengers: [],
+        status: "pending",
+        ...data
+    }).then(res =>{ 
+      console.log("RESPONSE: ", res)
+      setTripSaved(true)
+      setLoadingSaveTrip(false)
+    }).catch((error) => {
+      console.log("error again", error)
+      setLoadingSaveTrip(false)
+    });
   };
 
   return (
@@ -217,6 +251,11 @@ const ContextProvider = ({ children }) => {
         getUserData: getUserData,
         handleUserUpdate: handleUserUpdate,
         handleDeleteUser: handleDeleteUser,
+        updatingUserData: updatingUserData,
+        userData: userData,
+        handleSaveTrip: handleSaveTrip,
+        loadingSaveTrip: loadingSaveTrip,
+        tripSaved: tripSaved
       }}
     >
       {children}

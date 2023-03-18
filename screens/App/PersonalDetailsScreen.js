@@ -42,8 +42,13 @@ const PersonalDetailsScreen = () => {
   const [isFocus, setIsFocus] = useState(false);
   const [userImg, setUserImg] = useState();
 
-  const { loadingUserData, getUserData, userId, handleUserUpdate } =
-    contextData();
+  const {
+    loadingUserData,
+    getUserData,
+    userId,
+    handleUserUpdate,
+    updatingUserData,
+  } = contextData();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -58,10 +63,13 @@ const PersonalDetailsScreen = () => {
           ? getFormatedDate(new Date(userData?.date_of_birth))
           : getFormatedDate(new Date());
         setSelectedDate(dob);
-        const userType = userData?.user_type && userData?.user_type === "driver" ? true : false
-        setIsDriver(userType)
-        setGender(userData?.gender ? userData?.gender : "male")
-        setUserImg(userData?.user_img !== null && userData?.user_img)
+        const userType =
+          userData?.user_type && userData?.user_type === "driver"
+            ? true
+            : false;
+        setIsDriver(userType);
+        setGender(userData?.gender ? userData?.gender : "male");
+        setUserImg(userData?.user_img !== null && userData?.user_img);
       } catch (error) {
         console.log(error);
       }
@@ -76,7 +84,7 @@ const PersonalDetailsScreen = () => {
       description: description,
       gender: gender,
       user_type: isDriver ? "driver" : "user",
-      user_img: userImg || null
+      user_img: userImg || null,
     });
   };
 
@@ -199,6 +207,11 @@ const PersonalDetailsScreen = () => {
           </Modal>
         </KeyboardAwareScrollView>
       )}
+      {updatingUserData && (
+        <View style={styles.loading2}>
+          <ActivityIndicator size={"large"} />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -301,6 +314,18 @@ const styles = StyleSheet.create({
   },
   postBtn: {
     marginBottom: 20,
+  },
+  loading2: {
+    flex: 1,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    opacity: 0.5,
+    backgroundColor: "black",
   },
 });
 

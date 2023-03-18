@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, View, StyleSheet, Image, Text } from "react-native";
+import { Pressable, View, StyleSheet, Image, Text, ImageBackground } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 const AccountList = ({ items, noMargin }) => {
@@ -19,9 +19,18 @@ const AccountList = ({ items, noMargin }) => {
         >
           <View style={styles.labelContainer}>
             {item?.imagePath && (
-              <View style={styles.imageContainer}>
-                <Image source={item.imagePath} style={styles.image} />
-              </View>
+              // <View style={styles.imageContainer}>
+              //   <Image source={item.imagePath} style={styles.image} />
+              // </View>
+              <View style={styles.profileImageContainer}>
+              <ImageBackground
+                source={{
+                  uri: item.imageUri ? item.imageUri  : "https://imebehavioralhealth.com/wp-content/uploads/2021/10/user-icon-placeholder-1.png",
+                }}
+                style={styles.profileImage}
+              >
+              </ImageBackground>
+            </View>
             )}
             <Text style={[styles.label, item.red && styles.red]}>{item.label}</Text>
           </View>
@@ -47,17 +56,19 @@ const styles = StyleSheet.create({
     borderBottomColor: "#F4F4F4",
     overflow: "hidden"
   },
-  imageContainer: {
+  profileImageContainer: {
     width: 40,
     height: 40,
     borderRadius: 20,
     overflow: "hidden",
-    marginRight: 15,
+    marginRight: 20,
+    backgroundColor: "#E8E8E8",
   },
-  image: {
+  profileImage: {
     width: "100%",
     height: "100%",
   },
+
   labelContainer: {
     flexDirection: "row",
     alignItems: "center",

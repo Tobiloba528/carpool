@@ -7,9 +7,16 @@ import {
   ScrollView,
   TextInput,
   KeyboardAvoidingView,
-  Platform, StatusBar
+  Platform,
+  StatusBar,
+  Modal,
+  Pressable,
 } from "react-native";
 import Checkbox from "expo-checkbox";
+import DatePicker, {
+  getToday,
+  getFormatedDate,
+} from "react-native-modern-datepicker";
 import {
   FontAwesome,
   Ionicons,
@@ -21,10 +28,27 @@ import FindTripButton from "../../components/UI/FindTripButton";
 import NavigationController from "../../components/UI/NavigationController";
 import SecondaryButton from "../../components/UI/SecondaryButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import SecondaryInput from "../../components/UI/SecondaryInput";
+import { contextData } from "../../context/store";
 
 const PostTrip = ({ navigation }) => {
   const [skipVehicle, setSkipVehicle] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalLabel, setModalLabel] = useState("Enter an origin");
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [isDateModalVisible, setIsDateModalVisible] = useState(false);
+  const [originData, setOriginData] = useState({});
+  const [destinationData, setDestinationData] = useState({});
+
+  const handleInput = (data) => {
+    if (modalLabel === "Enter an origin") {
+      setOriginData(data);
+    } else {
+      setDestinationData(data);
+    }
+    setIsModalVisible(false)
+  };
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -43,12 +67,11 @@ const PostTrip = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Origin</Text>
           <FindTripButton
-            text={"Enter an origin"}
-            onPress={() =>
-              navigation.navigate("SearchAddressScreen", {
-                title: "Enter an origin",
-              })
-            }
+            text={originData?.description ? originData?.description : "Enter an origin"}
+            onPress={() => {
+              setIsModalVisible(true);
+              setModalLabel("Enter an origin");
+            }}
           >
             <Ionicons name="location-sharp" size={20} color="black" />
           </FindTripButton>
@@ -57,18 +80,17 @@ const PostTrip = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Destination</Text>
           <FindTripButton
-            text={"Enter a destination"}
-            onPress={() =>
-              navigation.navigate("SearchAddressScreen", {
-                title: "Enter a destination",
-              })
-            }
+            text={ destinationData?.description ? destinationData?.description : "Enter a destination"}
+            onPress={() => {
+              setIsModalVisible(true);
+              setModalLabel("Enter a destination");
+            }}
           >
             <Ionicons name="location-sharp" size={20} color="black" />
           </FindTripButton>
         </View>
 
-        <View style={styles.inputContainer}>
+        {/* <View style={styles.inputContainer}>
           <View style={{ flexDirection: "row" }}>
             <Text style={[styles.inputLabel, styles.extraMargin]}>Stops</Text>
             <AntDesign name="questioncircle" size={20} color="black" />
@@ -83,7 +105,7 @@ const PostTrip = ({ navigation }) => {
           >
             <Ionicons name="add-circle-outline" size={20} color="black" />
           </FindTripButton>
-        </View>
+        </View> */}
 
         <View style={styles.space}></View>
 
@@ -100,29 +122,11 @@ const PostTrip = ({ navigation }) => {
           <View style={styles.scheduleInputContainer}>
             <View style={styles.dateContainer}>
               <FindTripButton
-                text={"Departure Date"}
+                text={selectedDate ? selectedDate : "Departure Date"}
                 style={styles.extraRadius}
-                onPress={() =>
-                  navigation.navigate("SearchAddressScreen", {
-                    title: "Enter an origin",
-                  })
-                }
+                onPress={() => setIsDateModalVisible(true)}
               >
                 <FontAwesome name="calendar-o" size={18} color="black" />
-              </FindTripButton>
-            </View>
-            <Text style={styles.atText}>at</Text>
-            <View style={styles.timeContainer}>
-              <FindTripButton
-                text={"Time"}
-                style={styles.extraRadius}
-                onPress={() =>
-                  navigation.navigate("SearchAddressScreen", {
-                    title: "Enter an origin",
-                  })
-                }
-              >
-                {/* <FontAwesome name="calendar-o" size={18} color="black" /> */}
               </FindTripButton>
             </View>
           </View>
@@ -151,11 +155,16 @@ const PostTrip = ({ navigation }) => {
           </Text>
         ) : (
           <View>
-            <View style={styles.addCarContainer}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.addCarContainer,
+                pressed && styles.addCarContainerPressed,
+              ]}
+            >
               {/* <FontAwesome5 name="car-side" size={100} color="#E8E8E8" /> */}
               <FontAwesome5 name="car" size={100} color="#E8E8E8" />
               <Text style={styles.addCarText}>Add photo</Text>
-            </View>
+            </Pressable>
 
             <View style={styles.carInfoItem}>
               <Text style={styles.carInfoLabel}>Model</Text>
@@ -243,6 +252,70 @@ const PostTrip = ({ navigation }) => {
           <SecondaryButton isValid={true} title="Post request" radius={10} />
         </View>
       </KeyboardAwareScrollView>
+
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        style={{ backgroundColor: "red" }}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.topContainer}>
+            <View style={styles.topView}>
+              <Pressable
+                onPress={() => setIsModalVisible(false)}
+                style={({ pressed }) => pressed && styles.btnPressed}
+              >
+                <Text style={[styles.topText]}>{modalLabel}</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.topView}>
+              <Pressable
+                onPress={() => setIsModalVisible(false)}
+                style={({ pressed }) => pressed && styles.btnPressed}
+              >
+                <Text style={[styles.closeText]}>Close</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <View style={styles.secondaryInputContainer}>
+            <SecondaryInput handleInput={handleInput}/>
+            <Text style={styles.inputText}>
+              Enter at least three characters to get started
+            </Text>
+          </View>
+        </SafeAreaView>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isDateModalVisible}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <DatePicker
+              mode="datepicker"
+              selected={selectedDate}
+              onSelectedChange={(date) => setSelectedDate(date)}
+              minimumDate={getToday()}
+              options={{
+                textHeaderColor: "#006A61",
+                textDefaultColor: "black",
+                mainColor: "#006A61",
+                selectedTextColor: "#fff",
+                textSecondaryColor: "#006A61",
+                // backgroundColor: '#090C08',
+                // borderColor: 'rgba(122, 146, 165, 0.1)',
+              }}
+            />
+            <Pressable onPress={() => setIsDateModalVisible(false)}>
+              <Text>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -251,7 +324,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "white",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   contentContainer: {
     flex: 1,
@@ -341,6 +414,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 40,
   },
+  addCarContainerPressed: {
+    opacity: 0.7
+  },
   addCarText: {
     color: "#848482",
     fontSize: 15,
@@ -422,6 +498,70 @@ const styles = StyleSheet.create({
   },
   postBtn: {
     marginBottom: 20,
+  },
+
+  modalContainer: {
+    backgroundColor: "white",
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 40,
+    paddingHorizontal: 10,
+  },
+
+  topContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 10,
+    paddingHorizontal: 10,
+  },
+  topView: {
+    flex: 1,
+  },
+  profileNameText: {
+    textAlign: "center",
+  },
+  topText: {
+    fontWeight: "bold",
+    fontSize: 19,
+  },
+  closeText: {
+    textAlign: "right",
+    fontWeight: "400",
+    fontSize: 17,
+  },
+  btnPressed: {
+    opacity: 0.5,
+  },
+  secondaryInputContainer: {
+    marginTop: 15,
+    paddingHorizontal: 10,
+  },
+  inputText: {
+    marginTop: 10,
+    color: "#555555",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    // marginTop: 22,
+    // backgroundColor: "red",
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    width: "90%",
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 
