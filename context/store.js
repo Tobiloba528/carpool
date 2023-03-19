@@ -20,6 +20,8 @@ import {
   Timestamp,
   updateDoc,
   deleteDoc,
+  query,
+  where
 } from "firebase/firestore";
 import { Alert } from "react-native";
 import moment from "moment";
@@ -43,7 +45,8 @@ const AppContext = createContext({
   userData: {},
   handleSaveTrip: () => {},
   loadingSaveTrip: false,
-  tripSaved: false
+  tripSaved: false,
+  handleFetchTrips: () => {}
 });
 
 const ContextProvider = ({ children }) => {
@@ -218,22 +221,34 @@ const ContextProvider = ({ children }) => {
 
   const handleSaveTrip = (data) => {
     // console.log(data)
-    setLoadingSaveTrip(true)
+    setLoadingSaveTrip(true);
     const tripsRef = collection(db, "trips");
     addDoc(tripsRef, {
-        creator: userId,
-        passengers: [],
-        status: "pending",
-        ...data
-    }).then(res =>{ 
-      console.log("RESPONSE: ", res)
-      setTripSaved(true)
-      setLoadingSaveTrip(false)
-    }).catch((error) => {
-      console.log("error again", error)
-      setLoadingSaveTrip(false)
-    });
+      creator: userId,
+      passengers: [],
+      status: "pending",
+      ...data,
+    })
+      .then((res) => {
+        console.log("RESPONSE: ", res);
+        setTripSaved(true);
+        setLoadingSaveTrip(false);
+        Alert.alert("Action successful", "Trip successfully created.", [
+          { onPress: () => setTripSaved(true) },
+        ]);
+      })
+      .catch((error) => {
+        console.log("error again", error);
+        setLoadingSaveTrip(false);
+      });
   };
+
+  const handleFetchTrips = (origin, destination) => {
+    const tripsRef = collection(db, "trips");
+    const q = query(tripsRef, where("capital", "==", true))
+  }
+
+  
 
   return (
     <AppContext.Provider
@@ -255,7 +270,8 @@ const ContextProvider = ({ children }) => {
         userData: userData,
         handleSaveTrip: handleSaveTrip,
         loadingSaveTrip: loadingSaveTrip,
-        tripSaved: tripSaved
+        tripSaved: tripSaved,
+        handleFetchTrips: handleFetchTrips
       }}
     >
       {children}

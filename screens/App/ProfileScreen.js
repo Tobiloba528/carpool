@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import moment from "moment";
 import {
   SafeAreaView,
   Text,
@@ -20,10 +19,10 @@ import NavigationController from "../../components/UI/NavigationController";
 import { Ionicons } from "@expo/vector-icons";
 import { contextData } from "../../context/store";
 import { getAge } from "../../utils";
-import RBSheet from "react-native-raw-bottom-sheet";
 import * as ImagePicker from "expo-image-picker";
 import { storage } from "../../http";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import CustomImageBottomSheet from "../../components/UI/CustomImageBottomSheet";
 
 const ProfileScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState("");
@@ -104,6 +103,10 @@ const ProfileScreen = ({ navigation }) => {
         });
 
         console.log(result);
+        if(result.assets[0].fileSize > 2500000){
+          Alert.alert("File size exceeded", "Kind choose a small size.");
+          return;
+        }
 
         if (!result.canceled) {
           setImage(result.assets[0].uri);
@@ -136,6 +139,10 @@ const ProfileScreen = ({ navigation }) => {
         });
 
         console.log(result);
+        if(result.assets[0].fileSize > 2500000){
+          Alert.alert("File size exceeded", "Kind choose a small size.");
+          return;
+        }
 
         if (!result.canceled) {
           setImage(result.assets[0].uri);
@@ -176,7 +183,7 @@ const ProfileScreen = ({ navigation }) => {
               <View style={styles.profileInfoContainer}>
                 <View style={styles.profileInfo}>
                   <Pressable
-                    onPress={() => refRBSheet.current.open()}
+                    onPress={() => refRBSheet?.current?.open()}
                     style={({ pressed }) => pressed && styles.profilePressed}
                   >
                     <View style={styles.profileImageContainer}>
@@ -249,67 +256,12 @@ const ProfileScreen = ({ navigation }) => {
               <View style={styles.styleSpace}></View>
             </View>
           </ScrollView>
-          <RBSheet
-            ref={refRBSheet}
-            height={400}
-            closeOnDragDown={true}
-            closeOnPressMask={true}
-            customStyles={{
-              wrapper: {
-                backgroundColor: "transparent",
-              },
-              draggableIcon: {
-                backgroundColor: "#000",
-              },
-              container: {
-                borderRadius: 20,
-                shadowColor: "#000",
-                overflow: "visible",
-                shadowOffset: {
-                  width: 1,
-                  height: 2,
-                },
-                shadowOpacity: 0.25,
-                shadowRadius: 4,
-                elevation: 5,
-              },
-            }}
-          >
-            <View style={styles.bottomSheetContainer}>
-              <Text style={styles.uploadTitle}>Upload Photo</Text>
-              <Text style={styles.uploadInfo}>Choose Your Profile Picture</Text>
-
-              <Pressable
-                onPress={takePhotoFromCamera}
-                style={({ pressed }) => [
-                  styles.bottomSheetButton,
-                  pressed && styles.bottomSheetButtonPressed,
-                ]}
-              >
-                <Text style={styles.bottomSheetBottonText}>Take Photo</Text>
-              </Pressable>
-              <Pressable
-                onPress={choosePhotoFromLibrary}
-                style={({ pressed }) => [
-                  styles.bottomSheetButton,
-                  pressed && styles.bottomSheetButtonPressed,
-                ]}
-              >
-                <Text style={styles.bottomSheetBottonText}>
-                  Choose from Library
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => refRBSheet.current.close()}
-                style={({ pressed }) => [
-                  styles.bottomSheetButton,
-                  pressed && styles.bottomSheetButtonPressed,
-                ]}
-              >
-                <Text style={styles.bottomSheetBottonText}>Cancel</Text>
-              </Pressable>
-            </View>
-          </RBSheet>
+          <CustomImageBottomSheet
+            myRef={refRBSheet}
+            handleCameraPhoto={takePhotoFromCamera}
+            handleLibraryPhoto={choosePhotoFromLibrary}
+            handleCancel={closeButtomSheet}
+          />
         </View>
       )}
       {updatingUserData && (
@@ -414,37 +366,6 @@ const styles = StyleSheet.create({
   },
   reviews: {
     padding: 18,
-  },
-  bottomSheetContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-
-  uploadTitle: {
-    fontWeight: "500",
-    fontSize: 25,
-    textAlign: "center",
-  },
-  uploadInfo: {
-    textAlign: "center",
-    color: "#555555",
-    fontSize: 15,
-    marginBottom: 40,
-  },
-  bottomSheetButton: {
-    backgroundColor: "#006A61",
-    borderRadius: 10,
-    marginBottom: 15,
-    paddingVertical: 15,
-  },
-  bottomSheetButtonPressed: {
-    opacity: 0.7,
-  },
-  bottomSheetBottonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 17,
   },
   loading2: {
     flex: 1,

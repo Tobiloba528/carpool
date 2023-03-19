@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -11,12 +11,17 @@ import {
   StatusBar,
   Modal,
   Pressable,
+  Alert,
+  ActivityIndicator,
+  ImageBackground,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import Checkbox from "expo-checkbox";
 import DatePicker, {
   getToday,
   getFormatedDate,
 } from "react-native-modern-datepicker";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   FontAwesome,
   Ionicons,
@@ -30,16 +35,36 @@ import SecondaryButton from "../../components/UI/SecondaryButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import SecondaryInput from "../../components/UI/SecondaryInput";
 import { contextData } from "../../context/store";
+import CustomDate from "../../components/UI/CustomDate";
+import CustomAddressSearch from "../../components/UI/CustomAddressSearch";
+import CustomImageBottomSheet from "../../components/UI/CustomImageBottomSheet";
+import { storage } from "../../http";
 
 const PostTrip = ({ navigation }) => {
   const [skipVehicle, setSkipVehicle] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalLabel, setModalLabel] = useState("Enter an origin");
-  const [selectedDate, setSelectedDate] = useState(null);
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
-  const [originData, setOriginData] = useState({});
-  const [destinationData, setDestinationData] = useState({});
+
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [originData, setOriginData] = useState(null);
+  const [destinationData, setDestinationData] = useState(null);
+  const [description, setDescription] = useState("");
+  const [seats, setSeats] = useState(null);
+  const [price, setPrice] = useState(null);
+
+  const [vehicleImage, setVehicleImage] = useState(null);
+  const [vehicleModel, setVehicleModel] = useState(null);
+  const [vehicleColor, setVehicleColor] = useState(null);
+  const [vehicleType, setVehicleType] = useState(null);
+  const [vehicleLicensePlate, setVehicleLicensePlate] = useState(null);
+  const [vehicleYear, setVehicleYear] = useState(null);
+
+  const [image, setImage] = useState(null);
+
+  const refRBSheet = useRef();
+  const { handleSaveTrip, loadingSaveTrip, tripSaved } = contextData();
 
   const handleInput = (data) => {
     if (modalLabel === "Enter an origin") {
@@ -47,7 +72,151 @@ const PostTrip = ({ navigation }) => {
     } else {
       setDestinationData(data);
     }
-    setIsModalVisible(false)
+    setIsModalVisible(false);
+  };
+
+  const handleSubmit = () => {
+    if (
+      !originData ||
+      !destinationData ||
+      !description ||
+      !seats ||
+      !selectedDate ||
+      !price ||
+      !agreeToTerms
+    ) {
+      Alert.alert("Incomplete form", "Kindly complete the form");
+      return;
+    }
+    handleSaveTrip({
+      origin: originData,
+      destination: destinationData,
+      description: description,
+      date: selectedDate,
+      seats: seats,
+      price: price,
+      type: "trip_driver",
+      vehicle: {
+        image: vehicleImage,
+        model: vehicleModel,
+        color: vehicleColor,
+        type: vehicleType,
+        year: vehicleYear,
+        licensePlate: vehicleLicensePlate,
+      },
+    });
+    if (tripSaved) {
+      setSelectedDate(null);
+      setDescription("");
+      setSeats(null);
+      setOriginData(null);
+      setDestinationData(null);
+      setPrice(null);
+      setVehicleImage(null);
+      setVehicleModel(null);
+      setVehicleColor(null);
+      setVehicleType(null);
+      setVehicleYear(null);
+      setVehicleLicensePlate(null);
+      setAgreeToTerms(false);
+    }
+  };
+
+  // <----------------------------------------------------------------------->
+  const handleSaveImage = async (imageUri) => {
+    const img = await fetch(imageUri);
+    const blob = await img.blob();
+    let filename = imageUri?.substring(imageUri?.lastIndexOf("/") + 1);
+    console.log(filename);
+
+    const storageRef = ref(storage, `${filename}`);
+
+    uploadBytes(storageRef, blob)
+      .then((snapshot) => {
+        getDownloadURL(storageRef)
+          .then((url) => {
+            console.log("Totally done.");
+            setVehicleImage(url);
+          })
+          .catch((error) => console.log(error));
+        console.log("Uploaded a blob or file!");
+      })
+      .catch((error) => console.log(error));
+  };
+
+  const takePhotoFromCamera = async () => {
+    try {
+      const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+      console.log(cameraStatus);
+      if (cameraStatus.status === "granted") {
+        let result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        });
+
+        console.log(result);
+        if (result.assets[0].fileSize > 2500000) {
+          Alert.alert("File size exceeded", "Kind choose a small size.");
+          return;
+        }
+
+        if (!result.canceled) {
+          setImage(result.assets[0].uri);
+          handleSaveImage(result.assets[0].uri);
+          closeButtomSheet();
+        }
+      } else {
+        Alert.alert(
+          "Camera Permission required",
+          "Kindly give camera permision",
+          "OK"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const choosePhotoFromLibrary = async () => {
+    try {
+      const galleryStatus =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      console.log(galleryStatus);
+      if (galleryStatus.status === "granted") {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        });
+
+        console.log(result);
+        if (result.assets[0].fileSize > 2500000) {
+          Alert.alert("File size exceeded", "Kind choose a small size.");
+          return;
+        }
+
+        if (!result.canceled) {
+          setImage(result.assets[0].uri);
+          handleSaveImage(result.assets[0].uri);
+          closeButtomSheet();
+        }
+      } else {
+        Alert.alert(
+          "Media Permission required",
+          "Kindly give media permision",
+          "OK"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const closeButtomSheet = () => {
+    refRBSheet.current.close();
   };
 
   return (
@@ -67,7 +236,11 @@ const PostTrip = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Origin</Text>
           <FindTripButton
-            text={originData?.description ? originData?.description : "Enter an origin"}
+            text={
+              originData?.description
+                ? originData?.description
+                : "Enter an origin"
+            }
             onPress={() => {
               setIsModalVisible(true);
               setModalLabel("Enter an origin");
@@ -80,7 +253,11 @@ const PostTrip = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Destination</Text>
           <FindTripButton
-            text={ destinationData?.description ? destinationData?.description : "Enter a destination"}
+            text={
+              destinationData?.description
+                ? destinationData?.description
+                : "Enter a destination"
+            }
             onPress={() => {
               setIsModalVisible(true);
               setModalLabel("Enter a destination");
@@ -156,38 +333,75 @@ const PostTrip = ({ navigation }) => {
         ) : (
           <View>
             <Pressable
+              onPress={() => refRBSheet?.current?.open()}
               style={({ pressed }) => [
                 styles.addCarContainer,
                 pressed && styles.addCarContainerPressed,
               ]}
             >
-              {/* <FontAwesome5 name="car-side" size={100} color="#E8E8E8" /> */}
-              <FontAwesome5 name="car" size={100} color="#E8E8E8" />
-              <Text style={styles.addCarText}>Add photo</Text>
+              <ImageBackground
+                source={{
+                  uri: image
+                    ? image
+                    : "https://static.vecteezy.com/system/resources/thumbnails/008/694/437/small/white-and-grey-background-space-design-concept-decorative-web-layout-or-poster-banner-vector.jpg",
+                }}
+                style={styles.carImagebg}
+              >
+                {/* <FontAwesome5 name="car-side" size={100} color="#E8E8E8" /> */}
+                <FontAwesome5
+                  name="car"
+                  size={100}
+                  color="#E8E8E8"
+                  style={styles.addCarContainerPressed}
+                />
+                <Text style={styles.addCarText}>Click to add photo</Text>
+              </ImageBackground>
             </Pressable>
 
             <View style={styles.carInfoItem}>
               <Text style={styles.carInfoLabel}>Model</Text>
               <TextInput
                 style={styles.carInfoInput}
-                placeholder="e.g. Ford Forcus "
+                placeholder="e.g. Ford Focus "
+                value={vehicleModel}
+                onChangeText={(text) => setVehicleModel(text)}
               />
             </View>
             <View style={styles.carInfoItem}>
               <Text style={styles.carInfoLabel}>Color</Text>
-              <TextInput style={styles.carInfoInput} placeholder="Green" />
+              <TextInput
+                style={styles.carInfoInput}
+                placeholder="Green"
+                value={vehicleColor}
+                onChangeText={(text) => setVehicleColor(text)}
+              />
             </View>
             <View style={styles.carInfoItem}>
-              <Text style={styles.carInfoLabel}>Color</Text>
-              <TextInput style={styles.carInfoInput} placeholder="SUV" />
+              <Text style={styles.carInfoLabel}>Type</Text>
+              <TextInput
+                style={styles.carInfoInput}
+                placeholder="SUV"
+                value={vehicleType}
+                onChangeText={(text) => setVehicleType(text)}
+              />
             </View>
             <View style={styles.carInfoItem}>
               <Text style={styles.carInfoLabel}>Year</Text>
-              <TextInput style={styles.carInfoInput} placeholder="YYYY" />
+              <TextInput
+                style={styles.carInfoInput}
+                placeholder="YYYY"
+                value={vehicleYear}
+                onChangeText={(text) => setVehicleYear(text)}
+              />
             </View>
             <View style={styles.carInfoItem}>
               <Text style={styles.carInfoLabel}>License Plate</Text>
-              <TextInput style={styles.carInfoInput} placeholder="POP123" />
+              <TextInput
+                style={styles.carInfoInput}
+                placeholder="POP123"
+                value={vehicleLicensePlate}
+                onChangeText={(text) => setVehicleLicensePlate(text)}
+              />
             </View>
           </View>
         )}
@@ -201,6 +415,9 @@ const PostTrip = ({ navigation }) => {
         <TextInput
           style={[styles.carInfoInput, styles.seatAvailable]}
           placeholder="Select a number"
+          keyboardType={"number-pad"}
+          value={seats}
+          onChangeText={(text) => setSeats(text)}
         />
 
         <View style={styles.space}></View>
@@ -213,7 +430,12 @@ const PostTrip = ({ navigation }) => {
         <Text style={styles.seatPrice}>Price per seat</Text>
         <View style={styles.seatPriceInputContainer}>
           <Text>$</Text>
-          <TextInput style={styles.seatPriceInput} />
+          <TextInput
+            style={styles.seatPriceInput}
+            keyboardType={"number-pad"}
+            value={price}
+            onChangeText={(text) => setPrice(text)}
+          />
         </View>
 
         <View style={styles.space}></View>
@@ -224,6 +446,8 @@ const PostTrip = ({ navigation }) => {
         <TextInput
           style={styles.message}
           multiline
+          value={description}
+          onChangeText={(text) => setDescription(text)}
           placeholder="We recommend writing the exact pick-up and drop-off locations in your description"
         />
 
@@ -249,43 +473,28 @@ const PostTrip = ({ navigation }) => {
         </View>
 
         <View style={styles.postBtn}>
-          <SecondaryButton isValid={true} title="Post request" radius={10} />
+          <SecondaryButton
+            isValid={true}
+            title="Post request"
+            radius={10}
+            onPress={handleSubmit}
+          />
         </View>
       </KeyboardAwareScrollView>
+      {loadingSaveTrip && (
+        <View style={styles.loading}>
+          <ActivityIndicator size={"large"} />
+        </View>
+      )}
 
-      <Modal
-        visible={isModalVisible}
-        animationType="slide"
-        style={{ backgroundColor: "red" }}
-      >
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.topContainer}>
-            <View style={styles.topView}>
-              <Pressable
-                onPress={() => setIsModalVisible(false)}
-                style={({ pressed }) => pressed && styles.btnPressed}
-              >
-                <Text style={[styles.topText]}>{modalLabel}</Text>
-              </Pressable>
-            </View>
-
-            <View style={styles.topView}>
-              <Pressable
-                onPress={() => setIsModalVisible(false)}
-                style={({ pressed }) => pressed && styles.btnPressed}
-              >
-                <Text style={[styles.closeText]}>Close</Text>
-              </Pressable>
-            </View>
-          </View>
-
-          <View style={styles.secondaryInputContainer}>
-            <SecondaryInput handleInput={handleInput}/>
-            <Text style={styles.inputText}>
-              Enter at least three characters to get started
-            </Text>
-          </View>
-        </SafeAreaView>
+      <Modal visible={isModalVisible} animationType="slide">
+        <View style={styles.contentContainer2}>
+          <CustomAddressSearch
+            closeModal={() => setIsModalVisible(false)}
+            handleInput={handleInput}
+            modalLabel={modalLabel}
+          />
+        </View>
       </Modal>
 
       <Modal
@@ -293,29 +502,20 @@ const PostTrip = ({ navigation }) => {
         transparent={true}
         visible={isDateModalVisible}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <DatePicker
-              mode="datepicker"
-              selected={selectedDate}
-              onSelectedChange={(date) => setSelectedDate(date)}
-              minimumDate={getToday()}
-              options={{
-                textHeaderColor: "#006A61",
-                textDefaultColor: "black",
-                mainColor: "#006A61",
-                selectedTextColor: "#fff",
-                textSecondaryColor: "#006A61",
-                // backgroundColor: '#090C08',
-                // borderColor: 'rgba(122, 146, 165, 0.1)',
-              }}
-            />
-            <Pressable onPress={() => setIsDateModalVisible(false)}>
-              <Text>Close</Text>
-            </Pressable>
-          </View>
-        </View>
+        <CustomDate
+          value={selectedDate}
+          handleChange={(date) => setSelectedDate(date)}
+          closeModal={() => setIsDateModalVisible(false)}
+          datepicker
+          minDate={getToday()}
+        />
       </Modal>
+      <CustomImageBottomSheet
+        myRef={refRBSheet}
+        handleCameraPhoto={takePhotoFromCamera}
+        handleLibraryPhoto={choosePhotoFromLibrary}
+        handleCancel={closeButtomSheet}
+      />
     </SafeAreaView>
   );
 };
@@ -330,6 +530,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
     paddingBottom: 20,
+    paddingHorizontal: 10,
+  },
+  contentContainer2: {
+    flex: 1,
     paddingHorizontal: 10,
   },
   title: {
@@ -407,15 +611,20 @@ const styles = StyleSheet.create({
   addCarContainer: {
     width: "100%",
     height: 200,
-    justifyContent: "center",
-    alignItems: "center",
     borderWidth: 1,
     borderColor: "#848482",
     borderRadius: 5,
     marginBottom: 40,
   },
   addCarContainerPressed: {
-    opacity: 0.7
+    opacity: 0.7,
+  },
+  carImagebg: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    borderRadius: 5,
   },
   addCarText: {
     color: "#848482",
@@ -500,68 +709,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  modalContainer: {
-    backgroundColor: "white",
-    flex: 1,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 40,
-    paddingHorizontal: 10,
-  },
-
-  topContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: 10,
-    paddingHorizontal: 10,
-  },
-  topView: {
-    flex: 1,
-  },
   profileNameText: {
     textAlign: "center",
-  },
-  topText: {
-    fontWeight: "bold",
-    fontSize: 19,
-  },
-  closeText: {
-    textAlign: "right",
-    fontWeight: "400",
-    fontSize: 17,
-  },
-  btnPressed: {
-    opacity: 0.5,
   },
   secondaryInputContainer: {
     marginTop: 15,
     paddingHorizontal: 10,
   },
-  inputText: {
-    marginTop: 10,
-    color: "#555555",
-  },
-  centeredView: {
+  loading: {
     flex: 1,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "center",
-    // marginTop: 22,
-    // backgroundColor: "red",
-  },
-  modalView: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    width: "90%",
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    opacity: 0.5,
+    backgroundColor: "black",
   },
 });
 

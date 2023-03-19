@@ -25,6 +25,8 @@ import SecondaryButton from "../../components/UI/SecondaryButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import SecondaryInput from "../../components/UI/SecondaryInput";
 import { contextData } from "../../context/store";
+import CustomDate from "../../components/UI/CustomDate";
+import CustomAddressSearch from "../../components/UI/CustomAddressSearch";
 
 const PostRequest = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -66,14 +68,13 @@ const PostRequest = ({ navigation }) => {
       seats: seats,
       type: "trip_rider",
     });
-    if(tripSaved){
+    if (tripSaved) {
       setSelectedDate(null);
-      setDescription("")
-      setSeats(null)
-      setOriginData(null)
-      setDestinationData(null)
+      setDescription("");
+      setSeats(null);
+      setOriginData(null);
+      setDestinationData(null);
     }
-
   };
 
   return (
@@ -151,43 +152,20 @@ const PostRequest = ({ navigation }) => {
           />
         </View>
       </KeyboardAwareScrollView>
-      {loadingSaveTrip && <View  style={styles.loading}>
-          <ActivityIndicator size={"large"}/>
-        </View>}
+      {loadingSaveTrip && (
+        <View style={styles.loading}>
+          <ActivityIndicator size={"large"} />
+        </View>
+      )}
 
-      <Modal
-        visible={isModalVisible}
-        animationType="slide"
-        style={{ backgroundColor: "red" }}
-      >
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.topContainer}>
-            <View style={styles.topView}>
-              <Pressable
-                onPress={() => setIsModalVisible(false)}
-                style={({ pressed }) => pressed && styles.btnPressed}
-              >
-                <Text style={[styles.topText]}>{modalLabel}</Text>
-              </Pressable>
-            </View>
-
-            <View style={styles.topView}>
-              <Pressable
-                onPress={() => setIsModalVisible(false)}
-                style={({ pressed }) => pressed && styles.btnPressed}
-              >
-                <Text style={[styles.closeText]}>Close</Text>
-              </Pressable>
-            </View>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <SecondaryInput handleInput={handleInput} />
-            <Text style={styles.inputText}>
-              Enter at least three characters to get started
-            </Text>
-          </View>
-        </SafeAreaView>
+      <Modal visible={isModalVisible} animationType="slide">
+        <View style={styles.contentContainer2}>
+          <CustomAddressSearch
+            closeModal={() => setIsModalVisible(false)}
+            handleInput={handleInput}
+            modalLabel={modalLabel}
+          />
+        </View>
       </Modal>
 
       <Modal
@@ -195,30 +173,13 @@ const PostRequest = ({ navigation }) => {
         transparent={true}
         visible={isDateModalVisible}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <DatePicker
-              mode="datepicker"
-              selected={selectedDate}
-              onSelectedChange={(date) => {
-                setSelectedDate(date);
-              }}
-              minimumDate={getToday()}
-              options={{
-                textHeaderColor: "#006A61",
-                textDefaultColor: "black",
-                mainColor: "#006A61",
-                selectedTextColor: "#fff",
-                textSecondaryColor: "#006A61",
-                // backgroundColor: '#090C08',
-                // borderColor: 'rgba(122, 146, 165, 0.1)',
-              }}
-            />
-            <Pressable onPress={() => setIsDateModalVisible(false)}>
-              <Text>Close</Text>
-            </Pressable>
-          </View>
-        </View>
+        <CustomDate
+          value={selectedDate}
+          handleChange={(date) => setSelectedDate(date)}
+          closeModal={() => setIsDateModalVisible(false)}
+          datepicker
+          minDate={getToday()}
+        />
       </Modal>
     </SafeAreaView>
   );
@@ -234,7 +195,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "white",
-    
+  },
+  contentContainer2: {
+    flex: 1,
+    paddingHorizontal: 10,
   },
   inputContainer: {
     marginBottom: 15,
@@ -303,42 +267,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: "#555555",
   },
-
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    // marginTop: 22,
-    // backgroundColor: "red",
-  },
-  modalView: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    width: "90%",
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
   loading: {
     flex: 1,
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     opacity: 0.5,
-    backgroundColor: 'black',
-  }
-
+    backgroundColor: "black",
+  },
 });
 
 export default PostRequest;

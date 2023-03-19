@@ -23,6 +23,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import SecondaryButton from "../../components/UI/SecondaryButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { contextData } from "../../context/store";
+import CustomDate from "../../components/UI/CustomDate";
 
 const data = [
   { label: "Male", value: "Male" },
@@ -35,7 +36,7 @@ const PersonalDetailsScreen = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedDate, setSelectedDate] = useState(getFormatedDate(new Date()));
+  const [selectedDate, setSelectedDate] = useState(null);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [isDriver, setIsDriver] = useState(false);
   const [gender, setGender] = useState("N/A");
@@ -122,7 +123,7 @@ const PersonalDetailsScreen = () => {
               style={styles.datePicker}
               onPress={() => setIsPickerVisible(true)}
             >
-              <Text style={styles.datePickerText}>{selectedDate}</Text>
+              <Text style={styles.datePickerText}>{selectedDate ? selectedDate : "Pick a date"}</Text>
             </Pressable>
           </View>
 
@@ -183,27 +184,11 @@ const PersonalDetailsScreen = () => {
             transparent={true}
             visible={isPickerVisible}
           >
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <DatePicker
-                  mode="calendar"
-                  selected={selectedDate}
-                  onSelectedChange={(date) => setSelectedDate(date)}
-                  options={{
-                    textHeaderColor: "#006A61",
-                    textDefaultColor: "black",
-                    mainColor: "#006A61",
-                    selectedTextColor: "#fff",
-                    textSecondaryColor: "#006A61",
-                    // backgroundColor: '#090C08',
-                    // borderColor: 'rgba(122, 146, 165, 0.1)',
-                  }}
-                />
-                <Pressable onPress={() => setIsPickerVisible(false)}>
-                  <Text>Close</Text>
-                </Pressable>
-              </View>
-            </View>
+            <CustomDate
+              value={selectedDate}
+              handleChange={(date) => setSelectedDate(date)}
+              closeModal={() => setIsPickerVisible(false)}
+            />
           </Modal>
         </KeyboardAwareScrollView>
       )}
@@ -253,39 +238,6 @@ const styles = StyleSheet.create({
     width: "75%",
     borderRadius: 15,
   },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    // marginTop: 22,
-    // backgroundColor: "red",
-  },
-  modalView: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    width: "90%",
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  datePicker: {
-    backgroundColor: "#E8E8E8",
-    borderRadius: 15,
-    padding: 15,
-    width: "100%",
-  },
-  datePickerText: {
-    color: "black",
-    fontSize: 15,
-    fontWeight: "300",
-  },
   message: {
     backgroundColor: "#E8E8E8",
     paddingHorizontal: 15,
@@ -326,6 +278,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     opacity: 0.5,
     backgroundColor: "black",
+  },
+  datePicker: {
+    backgroundColor: "#E8E8E8",
+    borderRadius: 15,
+    padding: 15,
+    width: "100%",
+  },
+  datePickerText: {
+    color: "black",
+    fontSize: 15,
+    fontWeight: "300",
   },
 });
 

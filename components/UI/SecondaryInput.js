@@ -16,10 +16,11 @@ const SecondaryInput = ({ handleInput }) => {
       <GooglePlacesAutocomplete
         ref={inputRef}
         // styles={styles.input}
+        
         placeholder="Search"
         onPress={(data, details = null) => {
           // 'details' is provided when fetchDetails = true
-          // console.log("DATA: ", data);
+          console.log("DATA: ", data);
           handleInput(data);
           // console.log("DETAILS: ", details )
         }}

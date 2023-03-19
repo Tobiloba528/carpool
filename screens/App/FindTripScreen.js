@@ -18,11 +18,13 @@ import FindTripButton from "../../components/UI/FindTripButton";
 import SecondaryButton from "../../components/UI/SecondaryButton";
 import NavigationController from "../../components/UI/NavigationController";
 import SecondaryInput from "../../components/UI/SecondaryInput";
+import CustomDate from "../../components/UI/CustomDate";
+import CustomAddressSearch from "../../components/UI/CustomAddressSearch";
 
 const FindTrip = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalLabel, setModalLabel] = useState("From");
-  const [selectedDate, setSelectedDate] = useState(getFormatedDate(new Date()));
+  const [selectedDate, setSelectedDate] = useState(null);
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
   const [originData, setOriginData] = useState({});
   const [destinationData, setDestinationData] = useState({});
@@ -33,7 +35,7 @@ const FindTrip = ({ navigation }) => {
     } else {
       setDestinationData(data);
     }
-    setIsModalVisible(false)
+    setIsModalVisible(false);
   };
 
   const handleSwap = () => {
@@ -41,9 +43,7 @@ const FindTrip = ({ navigation }) => {
     const tempDestinationData = destinationData;
     setDestinationData(tempOriginData);
     setOriginData(tempDestinationData);
-  }
-
-
+  };
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -73,11 +73,10 @@ const FindTrip = ({ navigation }) => {
           />
         </Pressable>
 
-
-
-
         <FindTripButton
-          text={destinationData?.description ? destinationData?.description : "To"}
+          text={
+            destinationData?.description ? destinationData?.description : "To"
+          }
           onPress={() => {
             setIsModalVisible(true);
             setModalLabel("To");
@@ -87,7 +86,7 @@ const FindTrip = ({ navigation }) => {
         </FindTripButton>
 
         <FindTripButton
-          text={"Departing (optional)"}
+          text={selectedDate ? selectedDate : "Departing (optional)"}
           onPress={() => setIsDateModalVisible(true)}
         >
           <FontAwesome name="calendar-o" size={18} color="black" />
@@ -101,39 +100,14 @@ const FindTrip = ({ navigation }) => {
         />
       </View>
 
-      <Modal
-        visible={isModalVisible}
-        animationType="slide"
-        style={{ backgroundColor: "red" }}
-      >
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.topContainer}>
-            <View style={styles.topView}>
-              <Pressable
-                onPress={() => setIsModalVisible(false)}
-                style={({ pressed }) => pressed && styles.btnPressed}
-              >
-                <Text style={[styles.topText]}>{modalLabel}</Text>
-              </Pressable>
-            </View>
-
-            <View style={styles.topView}>
-              <Pressable
-                onPress={() => setIsModalVisible(false)}
-                style={({ pressed }) => pressed && styles.btnPressed}
-              >
-                <Text style={[styles.closeText]}>Close</Text>
-              </Pressable>
-            </View>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <SecondaryInput handleInput={handleInput} />
-            <Text style={styles.inputText}>
-              Enter at least three characters to get started
-            </Text>
-          </View>
-        </SafeAreaView>
+      <Modal visible={isModalVisible} animationType="slide">
+        <View style={styles.contentContainer2}>
+          <CustomAddressSearch
+            closeModal={() => setIsModalVisible(false)}
+            handleInput={handleInput}
+            modalLabel={modalLabel}
+          />
+        </View>
       </Modal>
 
       <Modal
@@ -141,28 +115,12 @@ const FindTrip = ({ navigation }) => {
         transparent={true}
         visible={isDateModalVisible}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <DatePicker
-              mode="calendar"
-              selected={selectedDate}
-              onSelectedChange={(date) => setSelectedDate(date)}
-              minimumDate={getToday()}
-              options={{
-                textHeaderColor: "#006A61",
-                textDefaultColor: "black",
-                mainColor: "#006A61",
-                selectedTextColor: "#fff",
-                textSecondaryColor: "#006A61",
-                // backgroundColor: '#090C08',
-                // borderColor: 'rgba(122, 146, 165, 0.1)',
-              }}
-            />
-            <Pressable onPress={() => setIsDateModalVisible(false)}>
-              <Text>Close</Text>
-            </Pressable>
-          </View>
-        </View>
+        <CustomDate
+          value={selectedDate}
+          handleChange={(date) => setSelectedDate(date)}
+          closeModal={() => setIsDateModalVisible(false)}
+          minDate={getToday()}
+        />
       </Modal>
     </SafeAreaView>
   );
@@ -175,76 +133,21 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   contentContainer: {
+    flex: 1,
     paddingHorizontal: 10,
     paddingTop: 20,
+  },
+  contentContainer2: {
+    flex: 1,
+    paddingHorizontal: 10,
   },
   swapIcon: { marginVertical: -25, zIndex: 10, marginLeft: "80%" },
   pressed: {
     opacity: 0.75,
   },
-
-  modalContainer: {
-    paddingHorizontal: 10,
-    backgroundColor: "white",
-    flex: 1,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 40,
-  },
-
-  topContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: 10,
-  },
-  topView: {
-    flex: 1,
-  },
   profileNameText: {
     textAlign: "center",
-  },
-  topText: {
-    fontWeight: "bold",
-    fontSize: 19,
-  },
-  closeText: {
-    textAlign: "right",
-    fontWeight: "400",
-    fontSize: 17,
-  },
-  btnPressed: {
-    opacity: 0.5,
-  },
-  inputContainer: {
-    marginTop: 15,
-  },
-  inputText: {
-    marginTop: 10,
-    color: "#555555",
-  },
-
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    // marginTop: 22,
-    // backgroundColor: "red",
-  },
-  modalView: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    width: "90%",
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
+  }
 });
 
 export default FindTrip;
