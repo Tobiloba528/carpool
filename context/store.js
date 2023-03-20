@@ -14,14 +14,14 @@ import { firebaseApp, db } from "../http";
 import {
   collection,
   addDoc,
-  getDoc,
+  getDocs,
   doc,
   setDoc,
   Timestamp,
   updateDoc,
   deleteDoc,
   query,
-  where
+  where,
 } from "firebase/firestore";
 import { Alert } from "react-native";
 import moment from "moment";
@@ -46,7 +46,7 @@ const AppContext = createContext({
   handleSaveTrip: () => {},
   loadingSaveTrip: false,
   tripSaved: false,
-  handleFetchTrips: () => {}
+  handleFetchTrips: () => {},
 });
 
 const ContextProvider = ({ children }) => {
@@ -243,12 +243,30 @@ const ContextProvider = ({ children }) => {
       });
   };
 
-  const handleFetchTrips = (origin, destination) => {
+  const handleFetchTrips = async (originData, destination) => {
     const tripsRef = collection(db, "trips");
-    const q = query(tripsRef, where("capital", "==", true))
-  }
+    const q = query(tripsRef);
+    const requestedTrips = [];
 
-  
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+
+      const data = doc.data();
+      const originTerms = data?.origin?.terms;
+      const destinationTerms = data?.destination?.terms
+      if (
+        originTerms[originTerms.length - 2]?.value ==
+          originData?.terms[originData?.terms.length - 2]?.value &&
+          destinationTerms[destinationTerms.length - 2]?.value ==
+          originData?.terms[originData?.terms.length - 2]?.value
+      ) {
+        requestedTrips.push(data)
+      }
+      // console.log(doc.id, " => ", doc.data());
+    });
+          console.log(requestedTrips);
+  };
 
   return (
     <AppContext.Provider
@@ -271,7 +289,7 @@ const ContextProvider = ({ children }) => {
         handleSaveTrip: handleSaveTrip,
         loadingSaveTrip: loadingSaveTrip,
         tripSaved: tripSaved,
-        handleFetchTrips: handleFetchTrips
+        handleFetchTrips: handleFetchTrips,
       }}
     >
       {children}

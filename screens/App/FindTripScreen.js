@@ -20,6 +20,7 @@ import NavigationController from "../../components/UI/NavigationController";
 import SecondaryInput from "../../components/UI/SecondaryInput";
 import CustomDate from "../../components/UI/CustomDate";
 import CustomAddressSearch from "../../components/UI/CustomAddressSearch";
+import { contextData } from "../../context/store";
 
 const FindTrip = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -28,6 +29,8 @@ const FindTrip = ({ navigation }) => {
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
   const [originData, setOriginData] = useState({});
   const [destinationData, setDestinationData] = useState({});
+
+  const { handleFetchTrips } = contextData();
 
   const handleInput = (data) => {
     if (modalLabel === "From") {
@@ -43,6 +46,10 @@ const FindTrip = ({ navigation }) => {
     const tempDestinationData = destinationData;
     setDestinationData(tempOriginData);
     setOriginData(tempDestinationData);
+  };
+
+  const handleSubmit = () => {
+    handleFetchTrips(originData, destinationData);
   };
 
   return (
@@ -96,7 +103,7 @@ const FindTrip = ({ navigation }) => {
           isValid
           bgColor="#3B444B"
           radius={15}
-          onPress={() => navigation.navigate("RequestedTripsScreen")}
+          onPress={handleSubmit}
         />
       </View>
 
@@ -147,7 +154,7 @@ const styles = StyleSheet.create({
   },
   profileNameText: {
     textAlign: "center",
-  }
+  },
 });
 
 export default FindTrip;

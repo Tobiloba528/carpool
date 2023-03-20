@@ -20,7 +20,9 @@ const SecondaryInput = ({ handleInput }) => {
         placeholder="Search"
         onPress={(data, details = null) => {
           // 'details' is provided when fetchDetails = true
-          console.log("DATA: ", data);
+          // const arr = data.description.split(",")
+          // console.log("DATA: ", arr[arr.length - 2]);
+          console.log("DATA: ", data)
           handleInput(data);
           // console.log("DETAILS: ", details )
         }}

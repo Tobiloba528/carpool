@@ -103,10 +103,10 @@ const ProfileScreen = ({ navigation }) => {
         });
 
         console.log(result);
-        if(result.assets[0].fileSize > 2500000){
-          Alert.alert("File size exceeded", "Kind choose a small size.");
-          return;
-        }
+        // if(result.assets[0].fileSize > 2500000){
+        //   Alert.alert("File size exceeded", "Kind choose a small size.");
+        //   return;
+        // }
 
         if (!result.canceled) {
           setImage(result.assets[0].uri);
@@ -139,10 +139,10 @@ const ProfileScreen = ({ navigation }) => {
         });
 
         console.log(result);
-        if(result.assets[0].fileSize > 2500000){
-          Alert.alert("File size exceeded", "Kind choose a small size.");
-          return;
-        }
+        // if(result.assets[0].fileSize > 2500000){
+        //   Alert.alert("File size exceeded", "Kind choose a small size.");
+        //   return;
+        // }
 
         if (!result.canceled) {
           setImage(result.assets[0].uri);
