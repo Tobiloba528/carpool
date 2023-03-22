@@ -22,6 +22,7 @@ import {
   deleteDoc,
   query,
   where,
+  getDoc,
 } from "firebase/firestore";
 import { Alert } from "react-native";
 import moment from "moment";
@@ -47,6 +48,8 @@ const AppContext = createContext({
   loadingSaveTrip: false,
   tripSaved: false,
   handleFetchTrips: () => {},
+  searchedTrips: [],
+  fetchingTrips: false,
 });
 
 const ContextProvider = ({ children }) => {
@@ -60,6 +63,8 @@ const ContextProvider = ({ children }) => {
   const [updatingUserData, setUpdatingUserData] = useState(false);
   const [loadingSaveTrip, setLoadingSaveTrip] = useState(false);
   const [tripSaved, setTripSaved] = useState(false);
+  const [searchedTrips, setSearchedTrips] = useState([]);
+  const [fetchingTrips, setFetchingTrips] = useState(false);
 
   // console.log(token, "this is the token");
 
@@ -217,6 +222,20 @@ const ContextProvider = ({ children }) => {
       });
   };
 
+  const getUser = async (id) => {
+    const docRef = doc(db, "users", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+
+      const data = await docSnap.data();
+      return { ...data };
+    } else {
+      console.log("No such document!");
+    }
+  };
+
   // <------------------------------------------------------------------------>
 
   const handleSaveTrip = (data) => {
@@ -243,29 +262,58 @@ const ContextProvider = ({ children }) => {
       });
   };
 
-  const handleFetchTrips = async (originData, destination) => {
-    const tripsRef = collection(db, "trips");
-    const q = query(tripsRef);
-    const requestedTrips = [];
+  const handleFetchTrips = async (originData, destinationData, date) => {
+    setFetchingTrips(true);
+    try {
+      const tripsRef = collection(db, "trips");
+      const q = query(tripsRef);
+      const trips1 = [];
+      const trips2 = [];
 
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        // doc.data() is never undefined for query doc snapshots
 
-      const data = doc.data();
-      const originTerms = data?.origin?.terms;
-      const destinationTerms = data?.destination?.terms
-      if (
-        originTerms[originTerms.length - 2]?.value ==
-          originData?.terms[originData?.terms.length - 2]?.value &&
+        const data = doc.data();
+        // data.creatorData = await getUser(data?.creator);
+
+        const originTerms = data?.origin?.terms;
+        const destinationTerms = data?.destination?.terms;
+
+        const checkOriginAddress =
+          originTerms[originTerms.length - 2]?.value ==
+          originData?.terms[originData?.terms.length - 2]?.value;
+        const checkDestinationAddress =
           destinationTerms[destinationTerms.length - 2]?.value ==
-          originData?.terms[originData?.terms.length - 2]?.value
-      ) {
-        requestedTrips.push(data)
-      }
-      // console.log(doc.id, " => ", doc.data());
-    });
-          console.log(requestedTrips);
+          destinationData?.terms[destinationData?.terms.length - 2]?.value;
+
+        const today = moment().format();
+        // console.log("TODAY: ", today)
+
+        const checkDate = date
+          ? moment(data.date).isSame(date, "second") ||
+            moment(data.date).isAfter(date, "second")
+          : moment(data.date).isSame(today, "second") ||
+            moment(data.date).isAfter(today, "second");
+
+        // console.log(checkDate);
+        if (checkOriginAddress && checkDestinationAddress && checkDate) {
+          if (data?.type == "trip_driver") {
+            trips1.push(data);
+          } else {
+            trips2.push(data);
+          }
+          console.log(checkDate);
+        }
+        // console.log(doc.id, " => ", doc.data());
+      });
+      setSearchedTrips([...trips1, trips2]);
+      // console.log("REQUESTED TRIPS", requestedTrips);
+      setFetchingTrips(false);
+    } catch (error) {
+      console.log(error);
+      setFetchingTrips(false);
+    }
   };
 
   return (
@@ -290,6 +338,9 @@ const ContextProvider = ({ children }) => {
         loadingSaveTrip: loadingSaveTrip,
         tripSaved: tripSaved,
         handleFetchTrips: handleFetchTrips,
+        searchedTrips: searchedTrips,
+        fetchingTrips: fetchingTrips,
+        getUser: getUser,
       }}
     >
       {children}

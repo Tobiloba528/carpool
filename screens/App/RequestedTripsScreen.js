@@ -8,136 +8,17 @@ import {
   RefreshControl,
   ScrollView,
   Image,
-  Platform, StatusBar
+  Platform,
+  StatusBar,
+  ActivityIndicator
 } from "react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import CustomTab from "../../components/UI/CustomTab";
 import TripItem from "../../components/UI/TripItem";
 import NavigationController from "../../components/UI/NavigationController";
+import { contextData } from "../../context/store";
 
-const dummyTrips = [
-  {
-    id: 1,
-    time: "3:15pm",
-    seats: 4,
-    price: 20,
-    car: "Chevrolet Cruse 2016",
-    driver: {
-      name: "Kamal",
-      driven: 5,
-    },
-    pickup: "Waterloo, ON, Canada",
-    pickupCity: "Waterloo",
-    destination: "Richmond Hill, ON, Canada",
-    destinationCity: "Richmond Hill",
-  },
-  {
-    id: 2,
-    time: "4:15pm",
-    seats: 3,
-    price: 150,
-    car: "Chevrolet Cruse 2016",
-    driver: {
-      name: "Kamal",
-      driven: 2,
-    },
-    pickup: "Waterloo, ON, Canada",
-    pickupCity: "Waterloo",
-    destination: "Richmond Hill, ON, Canada",
-    destinationCity: "Richmond Hill",
-  },
-  {
-    id: 3,
-    time: "5:15pm",
-    seats: 6,
-    price: 22,
-    car: "Chevrolet Cruse 2016",
-    driver: {
-      name: "Kamal",
-      driven: 2,
-    },
-    pickup: "Waterloo, ON, Canada",
-    pickupCity: "Waterloo",
-    destination: "Richmond Hill, ON, Canada",
-    destinationCity: "Richmond Hill",
-  },
-  {
-    id: 4,
-    time: "6:15pm",
-    seats: 2,
-    price: 19,
-    car: "Chevrolet Cruse 2016",
-    driver: {
-      name: "Kamal",
-      driven: 9,
-    },
-    pickup: "Waterloo, ON, Canada",
-    pickupCity: "Waterloo",
-    destination: "Richmond Hill, ON, Canada",
-    destinationCity: "Richmond Hill",
-  },
-  {
-    id: 5,
-    time: "3:15pm",
-    seats: 4,
-    price: 20,
-    car: "Chevrolet Cruse 2016",
-    driver: {
-      name: "Kamal",
-      driven: 5,
-    },
-    pickup: "Waterloo, ON, Canada",
-    pickupCity: "Waterloo",
-    destination: "Richmond Hill, ON, Canada",
-    destinationCity: "Richmond Hill",
-  },
-  {
-    id: 6,
-    time: "4:15pm",
-    seats: 3,
-    price: 150,
-    car: "Chevrolet Cruse 2016",
-    driver: {
-      name: "Kamal",
-      driven: 2,
-    },
-    pickup: "Waterloo, ON, Canada",
-    pickupCity: "Waterloo",
-    destination: "Richmond Hill, ON, Canada",
-    destinationCity: "Richmond Hill",
-  },
-  {
-    id: 7,
-    time: "5:15pm",
-    seats: 6,
-    price: 22,
-    car: "Chevrolet Cruse 2016",
-    driver: {
-      name: "Kamal",
-      driven: 2,
-    },
-    pickup: "Waterloo, ON, Canada",
-    pickupCity: "Waterloo",
-    destination: "Richmond Hill, ON, Canada",
-    destinationCity: "Richmond Hill",
-  },
-  {
-    id: 8,
-    time: "6:15pm",
-    seats: 2,
-    price: 19,
-    car: "Chevrolet Cruse 2016",
-    driver: {
-      name: "Kamal",
-      driven: 9,
-    },
-    pickup: "Waterloo, ON, Canada",
-    pickupCity: "Waterloo",
-    destination: "Richmond Hill, ON, Canada",
-    destinationCity: "Richmond Hill",
-  },
-];
 
 const forFlat = [
   {
@@ -145,7 +26,7 @@ const forFlat = [
   },
 ];
 
-const RequestedTripsScreen = ({ navigation }) => {
+const RequestedTripsScreen = ({ navigation, route }) => {
   const [trips, setTrips] = useState([]);
   const [items, setItems] = useState([
     { id: 1, active: true, title: "All" },
@@ -153,14 +34,18 @@ const RequestedTripsScreen = ({ navigation }) => {
     { id: 3, active: false, title: "Request" },
   ]);
   const [refreshing, setRefreshing] = useState(false);
+  const { fetchingTrips, searchedTrips, handleFetchTrips } = contextData();
+  const { originData, destinationData, selectedDate } = route.params;
+
+  // console.log("PARAMS: ", originData, destinationData, selectedDate )
 
   const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-      setTrips(dummyTrips);
-    }, 2000);
+    handleFetchTrips(originData, destinationData, selectedDate);
   }, []);
+
+  useEffect(() => {
+    setTrips(searchedTrips);
+  }, [fetchingTrips]);
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -168,7 +53,11 @@ const RequestedTripsScreen = ({ navigation }) => {
       <View>
         <CustomTab items={items} setItems={setItems} />
       </View>
-      {trips.length == 0 ? (
+      {fetchingTrips ? (
+        <View style={styles.loading}>
+          <ActivityIndicator size={"large"} />
+        </View>
+      ) : trips.length == 0 ? (
         <ScrollView
           contentContainerStyle={styles.emptyContainer}
           refreshControl={
@@ -204,7 +93,7 @@ const RequestedTripsScreen = ({ navigation }) => {
             key={(item) => item.id}
             renderItem={({}) => (
               <View>
-                <Text style={styles.date}>Today</Text>
+                {/* <Text style={styles.date}>Today</Text> */}
                 <FlatList
                   data={trips}
                   key={(item) => item.id}
@@ -243,7 +132,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     backgroundColor: "white",
     flex: 1,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   contentContainer: {
     flex: 1,
@@ -306,6 +195,11 @@ const styles = StyleSheet.create({
   thinkImg: {
     width: "100%",
     height: "100%",
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

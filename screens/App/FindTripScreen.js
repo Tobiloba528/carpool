@@ -7,6 +7,7 @@ import {
   Platform,
   StatusBar,
   Modal,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DatePicker, {
@@ -27,8 +28,8 @@ const FindTrip = ({ navigation }) => {
   const [modalLabel, setModalLabel] = useState("From");
   const [selectedDate, setSelectedDate] = useState(null);
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
-  const [originData, setOriginData] = useState({});
-  const [destinationData, setDestinationData] = useState({});
+  const [originData, setOriginData] = useState(null);
+  const [destinationData, setDestinationData] = useState(null);
 
   const { handleFetchTrips } = contextData();
 
@@ -49,7 +50,17 @@ const FindTrip = ({ navigation }) => {
   };
 
   const handleSubmit = () => {
-    handleFetchTrips(originData, destinationData);
+    if (!destinationData && !originData) {
+      Alert.alert("Error", "Please pick at least an origin or a destination");
+      return;
+    }
+
+    handleFetchTrips(originData, destinationData, selectedDate);
+    navigation.navigate("RequestedTripsScreen", {
+      originData: originData,
+      destinationData: destinationData,
+      selectedDate: selectedDate,
+    });
   };
 
   return (
