@@ -10,7 +10,7 @@ import React, { useState, useEffect } from "react";
 import { contextData } from "../../context/store";
 import moment from "moment";
 
-const TripItem = ({ item, onPress }) => {
+const TripItem = ({ item, onPress, navigation }) => {
   const [creatorData, setCreatorData] = useState(null);
   const { getUser } = contextData();
 
@@ -21,15 +21,16 @@ const TripItem = ({ item, onPress }) => {
     })();
   }, [item]);
 
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => navigation.navigate("TripDetailScreen", {id: item?.id}) }
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}
     >
       <View style={styles.top}>
         <Text style={styles.topText}>{moment(item.date).format("ddd, MMM D YYYY, ha")}</Text>
         <Text style={styles.topText}>
-          {item.seats} seats left{" "}
+          {item.seats} seats { item?.type == "trip_driver" ? "left" : "needed"}{" "}
           {item?.type == "trip_driver" && (
             <Text style={styles.price}>{` $${item.price}`}</Text>
           )}
@@ -180,3 +181,4 @@ const styles = StyleSheet.create({
 });
 
 export default TripItem;
+

@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, Pressable } from "react-native";
 
-const CustomTab = ({ items, setItems }) => {
+const CustomTab = ({ items, setItems, setValue }) => {
 
   const handlePress = (id) => {
     const newItems = items.map((item) => {
       if (item.id === id) {
+        setValue(item?.value)
         item.active = true;
+        console.log(item)
         return item;
       } else {
         item.active = false;

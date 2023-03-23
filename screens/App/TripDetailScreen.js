@@ -6,119 +6,146 @@ import {
   StyleSheet,
   Pressable,
   Image,
-  Platform, StatusBar
+  Platform,
+  StatusBar,
+  ActivityIndicator
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import NavigationController from "../../components/UI/NavigationController";
 import SecondaryButton from "../../components/UI/SecondaryButton";
+import { contextData } from "../../context/store";
 
-const TripDetailScreen = () => {
+const TripDetailScreen = ({ route }) => {
+  const [tripData, setTripData] = useState({});
+  const { getTrip, loadingTrip } = contextData();
+
+  const { id } = route.params;
+
+
+  useEffect(() => {
+    (async () => {
+        console.log("TRIP ID", id)
+        const trip = await getTrip(id);
+        console.log("GOTTEN TRIP DATA!!!", trip)
+        // setTripData(trip);
+    })();
+  }, [id]);
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <NavigationController title={"Trip preview"} />
-      <View style={styles.layer}>
-        <ScrollView>
-          <View style={styles.contentContainer}>
-            <View style={styles.addresses}>
-              <View style={styles.extra}>
-                <View style={styles.top}>
-                  <Text style={styles.city}>Toronto</Text>
-                  <Text style={styles.time}>Fri, Feb 24 at 4:00pm</Text>
+      {loadingTrip ? (
+        <View style={styles.loading}>
+          <ActivityIndicator size={"large"} />
+        </View>
+      ) : (
+        <View style={styles.layer}>
+          <ScrollView>
+            <View style={styles.contentContainer}>
+              <View style={styles.addresses}>
+                <View style={styles.extra}>
+                  <View style={styles.top}>
+                    <Text style={styles.city}>Toronto</Text>
+                    <Text style={styles.time}>Fri, Feb 24 at 4:00pm</Text>
+                  </View>
+                  <Text style={styles.location}>
+                    100 Queen st W, Toronto, ON M5H 2N2, Canada
+                  </Text>
                 </View>
-                <Text style={styles.location}>
-                  100 Queen st W, Toronto, ON M5H 2N2, Canada
-                </Text>
+
+                <View>
+                  <View style={styles.top}>
+                    <Text style={styles.city}>Kitchener</Text>
+                    <Text style={styles.time}>Fri, Feb 24 at 4:00pm</Text>
+                  </View>
+                  <Text style={styles.location}>
+                    1400 Ottawa St S, Kitchener, ON N2E 4E2, Canada
+                  </Text>
+                </View>
               </View>
 
-              <View>
-                <View style={styles.top}>
-                  <Text style={styles.city}>Kitchener</Text>
-                  <Text style={styles.time}>Fri, Feb 24 at 4:00pm</Text>
+              <View style={styles.seat}>
+                <View style={styles.NumOfseat}>
+                  <Text style={styles.seatText}>3 seats left</Text>
                 </View>
-                <Text style={styles.location}>
-                  1400 Ottawa St S, Kitchener, ON N2E 4E2, Canada
-                </Text>
+                <View style={styles.priceOfseat}>
+                  <Text style={[styles.seatText, styles.green]}>
+                    $17 per seat
+                  </Text>
+                </View>
               </View>
+
+              <Text style={styles.additionaMessage}>"Going back home"</Text>
             </View>
 
-            <View style={styles.seat}>
-              <View style={styles.NumOfseat}>
-                <Text style={styles.seatText}>3 seats left</Text>
-              </View>
-              <View style={styles.priceOfseat}>
-                <Text style={[styles.seatText, styles.green]}>
-                  $17 per seat
-                </Text>
-              </View>
-            </View>
-
-            <Text style={styles.additionaMessage}>"Going back home"</Text>
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.detailItem,
-              pressed && styles.detailItemPressed,
-            ]}
-          >
-            <View style={styles.detailFirst}>
-              <Text style={styles.detailItemText}>Booked: </Text>
-              <View style={styles.icons}>
-                <View style={styles.iconCointainer}>
-                  <FontAwesome name="user" size={24} color="white" />
-                </View>
-                <View style={styles.iconCointainer}>
-                  <FontAwesome name="user" size={24} color="white" />
-                </View>
-                <View style={styles.iconCointainer}>
-                  <FontAwesome name="user" size={24} color="white" />
+            <Pressable
+              style={({ pressed }) => [
+                styles.detailItem,
+                pressed && styles.detailItemPressed,
+              ]}
+            >
+              <View style={styles.detailFirst}>
+                <Text style={styles.detailItemText}>Booked: </Text>
+                <View style={styles.icons}>
+                  <View style={styles.iconCointainer}>
+                    <FontAwesome name="user" size={24} color="white" />
+                  </View>
+                  <View style={styles.iconCointainer}>
+                    <FontAwesome name="user" size={24} color="white" />
+                  </View>
+                  <View style={styles.iconCointainer}>
+                    <FontAwesome name="user" size={24} color="white" />
+                  </View>
                 </View>
               </View>
-            </View>
-            <Pressable>
-              <FontAwesome name="angle-right" size={30} color="black" />
+              <Pressable>
+                <FontAwesome name="angle-right" size={30} color="black" />
+              </Pressable>
             </Pressable>
-          </Pressable>
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.detailItem,
-              pressed && styles.detailItemPressed,
-            ]}
-          >
-            <View style={styles.detailFirst}>
-              <View style={styles.profileImageContainer}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.detailItem,
+                pressed && styles.detailItemPressed,
+              ]}
+            >
+              <View style={styles.detailFirst}>
+                <View style={styles.profileImageContainer}>
+                  <Image
+                    style={styles.profileImage}
+                    source={require("../../assets/user.jpg")}
+                  />
+                </View>
+                <Text style={styles.detailItemText}>Tobiloba </Text>
+              </View>
+              <Pressable>
+                <FontAwesome name="angle-right" size={30} color="black" />
+              </Pressable>
+            </Pressable>
+            <View style={styles.carDetails}>
+              <View style={styles.carImgContainer}>
                 <Image
-                  style={styles.profileImage}
-                  source={require("../../assets/user.jpg")}
+                  style={styles.carImg}
+                  source={require("../../assets/car.jpeg")}
                 />
               </View>
-              <Text style={styles.detailItemText}>Tobiloba </Text>
+              <View style={styles.carInfoContainer}>
+                <Text style={styles.seatText}>Chevrolet</Text>
+                <Text style={styles.location}>Blue</Text>
+                <Text style={styles.location}>2015</Text>
+              </View>
             </View>
-            <Pressable>
-              <FontAwesome name="angle-right" size={30} color="black" />
-            </Pressable>
-          </Pressable>
-          <View style={styles.carDetails}>
-            <View style={styles.carImgContainer}>
-              <Image style={styles.carImg} source={require("../../assets/car.jpeg")} />
-            </View>
-            <View style={styles.carInfoContainer}>
-              <Text style={styles.seatText}>Chevrolet</Text>
-              <Text style={styles.location}>Blue</Text>
-              <Text style={styles.location}>2015</Text>
-            </View>
+          </ScrollView>
+          <View style={styles.requestContainer}>
+            <SecondaryButton
+              title={"Request to book"}
+              radius={10}
+              isValid={true}
+            />
           </View>
-        </ScrollView>
-        <View style={styles.requestContainer}>
-          <SecondaryButton
-            title={"Request to book"}
-            radius={10}
-            isValid={true}
-          />
         </View>
-      </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -127,7 +154,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     backgroundColor: "white",
     flex: 1,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   layer: {
     backgroundColor: "#F4F4F4",
@@ -248,7 +275,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "white",
     marginTop: 25,
-    minHeight: 250
+    minHeight: 250,
   },
   carImgContainer: {
     width: "35%",
@@ -259,10 +286,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   carInfoContainer: {
-    marginLeft: 15
+    marginLeft: 15,
   },
   requestContainer: {
     paddingHorizontal: 20,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

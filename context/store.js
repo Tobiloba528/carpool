@@ -50,6 +50,8 @@ const AppContext = createContext({
   handleFetchTrips: () => {},
   searchedTrips: [],
   fetchingTrips: false,
+  getTrip: () => {},
+  loadingTrip: false,
 });
 
 const ContextProvider = ({ children }) => {
@@ -65,6 +67,7 @@ const ContextProvider = ({ children }) => {
   const [tripSaved, setTripSaved] = useState(false);
   const [searchedTrips, setSearchedTrips] = useState([]);
   const [fetchingTrips, setFetchingTrips] = useState(false);
+  const [loadingTrip, setLoadingTrip] = useState(false);
 
   // console.log(token, "this is the token");
 
@@ -227,7 +230,7 @@ const ContextProvider = ({ children }) => {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
+      // console.log("Document data:", docSnap.data());
 
       const data = await docSnap.data();
       return { ...data };
@@ -267,14 +270,15 @@ const ContextProvider = ({ children }) => {
     try {
       const tripsRef = collection(db, "trips");
       const q = query(tripsRef);
-      const trips1 = [];
-      const trips2 = [];
+      const requestedTrips = [];
 
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach(async (doc) => {
         // doc.data() is never undefined for query doc snapshots
 
+        // console.log("DOC, ID", doc?.id)
         const data = doc.data();
+        data.id = doc?.id
         // data.creatorData = await getUser(data?.creator);
 
         const originTerms = data?.origin?.terms;
@@ -298,21 +302,41 @@ const ContextProvider = ({ children }) => {
 
         // console.log(checkDate);
         if (checkOriginAddress && checkDestinationAddress && checkDate) {
-          if (data?.type == "trip_driver") {
-            trips1.push(data);
-          } else {
-            trips2.push(data);
-          }
+          data?.type == "trip_driver"
+            ? requestedTrips.unshift(data)
+            : requestedTrips.push(data);
+
           console.log(checkDate);
         }
         // console.log(doc.id, " => ", doc.data());
       });
-      setSearchedTrips([...trips1, trips2]);
+      setSearchedTrips(requestedTrips);
       // console.log("REQUESTED TRIPS", requestedTrips);
       setFetchingTrips(false);
     } catch (error) {
       console.log(error);
       setFetchingTrips(false);
+    }
+  };
+
+  const getTrip = async (id) => {
+    setLoadingTrip(true);
+    try {
+      const tripRef = collection(db, "trips", id);
+      const docSnap = await getDoc(tripRef);
+
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+
+        const data = await docSnap.data();
+        setLoadingTrip(false);
+        return { ...docSnap.data() };
+      } else {
+        console.log("No such document!");
+      }
+    } catch (error) {
+      console.log(error)
+      setLoadingTrip(false);
     }
   };
 
@@ -341,6 +365,8 @@ const ContextProvider = ({ children }) => {
         searchedTrips: searchedTrips,
         fetchingTrips: fetchingTrips,
         getUser: getUser,
+        getTrip: getTrip,
+        loadingTrip: loadingTrip,
       }}
     >
       {children}

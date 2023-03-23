@@ -10,7 +10,7 @@ import {
   Image,
   Platform,
   StatusBar,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import React, { useState, useCallback, useEffect } from "react";
@@ -18,7 +18,6 @@ import CustomTab from "../../components/UI/CustomTab";
 import TripItem from "../../components/UI/TripItem";
 import NavigationController from "../../components/UI/NavigationController";
 import { contextData } from "../../context/store";
-
 
 const forFlat = [
   {
@@ -28,13 +27,18 @@ const forFlat = [
 
 const RequestedTripsScreen = ({ navigation, route }) => {
   const [trips, setTrips] = useState([]);
+  const [filteredTrips, setFilteredTrips] = useState([]);
+  const [filter, setFilter] = useState("all");
+
   const [items, setItems] = useState([
-    { id: 1, active: true, title: "All" },
-    { id: 2, active: false, title: "Trips" },
-    { id: 3, active: false, title: "Request" },
+    { id: 1, active: true, title: "All", value: "all" },
+    { id: 2, active: false, title: "Trips", value: "trip_driver" },
+    { id: 3, active: false, title: "Request", value: "trip_rider" },
   ]);
   const [refreshing, setRefreshing] = useState(false);
   const { fetchingTrips, searchedTrips, handleFetchTrips } = contextData();
+
+  
   const { originData, destinationData, selectedDate } = route.params;
 
   // console.log("PARAMS: ", originData, destinationData, selectedDate )
@@ -47,11 +51,33 @@ const RequestedTripsScreen = ({ navigation, route }) => {
     setTrips(searchedTrips);
   }, [fetchingTrips]);
 
+  useEffect(() => {
+    if (filter === "all") {
+      setFilteredTrips(trips);
+    } else if (filter === "trip_driver") {
+      const newArr = [];
+      searchedTrips.forEach((item) => {
+        if (item?.type === "trip_driver") {
+          newArr.push(item);
+        }
+        setFilteredTrips(newArr);
+      });
+    } else if (filter === "trip_rider") {
+      const newArr = [];
+      searchedTrips.forEach((item) => {
+        if (item?.type === "trip_rider") {
+          newArr.push(item);
+        }
+        setFilteredTrips(newArr);
+      });
+    }
+  }, [filter]);
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <NavigationController title={"Search results"} />
       <View>
-        <CustomTab items={items} setItems={setItems} />
+        <CustomTab items={items} setItems={setItems} setValue={setFilter} />
       </View>
       {fetchingTrips ? (
         <View style={styles.loading}>
@@ -95,12 +121,12 @@ const RequestedTripsScreen = ({ navigation, route }) => {
               <View>
                 {/* <Text style={styles.date}>Today</Text> */}
                 <FlatList
-                  data={trips}
+                  data={filteredTrips.length > 0 ? filteredTrips : trips}
                   key={(item) => item.id}
                   renderItem={({ item }) => (
                     <TripItem
                       item={item}
-                      onPress={() => navigation.navigate("TripDetailScreen")}
+                      navigation={navigation}
                     />
                   )}
                 />
