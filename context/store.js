@@ -26,6 +26,7 @@ import {
 } from "firebase/firestore";
 import { Alert } from "react-native";
 import moment from "moment";
+import { sortedArr } from "../utils";
 
 const AppContext = createContext({
   token: null,
@@ -270,13 +271,11 @@ const ContextProvider = ({ children }) => {
     try {
       const tripsRef = collection(db, "trips");
       const q = query(tripsRef);
-      const requestedTrips = [];
+      const requestedTrips1 = [];
+      const requestedTrips2 = [];
 
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach(async (doc) => {
-        // doc.data() is never undefined for query doc snapshots
-
-        // console.log("DOC, ID", doc?.id)
         const data = doc.data();
         data.id = doc?.id
         // data.creatorData = await getUser(data?.creator);
@@ -303,14 +302,17 @@ const ContextProvider = ({ children }) => {
         // console.log(checkDate);
         if (checkOriginAddress && checkDestinationAddress && checkDate) {
           data?.type == "trip_driver"
-            ? requestedTrips.unshift(data)
-            : requestedTrips.push(data);
+            ? requestedTrips1.push(data)
+            : requestedTrips2.push(data);
 
-          console.log(checkDate);
+          // console.log(checkDate);
         }
         // console.log(doc.id, " => ", doc.data());
       });
-      setSearchedTrips(requestedTrips);
+
+      const correctRequestedTrips1 = sortedArr(requestedTrips1)
+      const correctRequestedTrips2 = sortedArr(requestedTrips2)
+      setSearchedTrips([...correctRequestedTrips1, ...correctRequestedTrips2]);
       // console.log("REQUESTED TRIPS", requestedTrips);
       setFetchingTrips(false);
     } catch (error) {
@@ -322,11 +324,11 @@ const ContextProvider = ({ children }) => {
   const getTrip = async (id) => {
     setLoadingTrip(true);
     try {
-      const tripRef = collection(db, "trips", id);
+      const tripRef = doc(db, "trips", id);
       const docSnap = await getDoc(tripRef);
 
       if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
+        // console.log("Document data:", docSnap.data());
 
         const data = await docSnap.data();
         setLoadingTrip(false);
@@ -339,6 +341,8 @@ const ContextProvider = ({ children }) => {
       setLoadingTrip(false);
     }
   };
+
+
 
   return (
     <AppContext.Provider

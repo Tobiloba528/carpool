@@ -5,7 +5,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
-
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
@@ -28,6 +27,7 @@ import ProfileSettings from "./screens/App/ProfileSettings";
 import PersonalDetailsScreen from "./screens/App/PersonalDetailsScreen";
 import NotificationScreen from "./screens/App/NotificationScreen";
 import AboutScreen from "./screens/App/AboutScreen";
+import TripRequestDetailScreen from "./screens/App/TripRequestDetailScreen";
 
 const AuthNavigator = () => {
   const navigation = useNavigation();
@@ -184,6 +184,13 @@ const AppNavigator = () => {
       <Stack.Screen
         name="TripDetailScreen"
         component={TripDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="TripRequestDetailScreen"
+        component={TripRequestDetailScreen}
         options={{
           headerShown: false,
         }}

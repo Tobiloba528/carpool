@@ -16,21 +16,33 @@ const TripItem = ({ item, onPress, navigation }) => {
 
   useEffect(() => {
     (async () => {
-      const data = await getUser(item.creator);
-      setCreatorData(data);
+      try {
+        const data = await getUser(item.creator);
+        setCreatorData(data);
+      } catch (error) {
+        console.log(error);
+      }
     })();
   }, [item]);
 
-
   return (
     <Pressable
-      onPress={() => navigation.navigate("TripDetailScreen", {id: item?.id}) }
+      onPress={() =>
+        navigation.navigate(
+          item?.type == "trip_driver"
+            ? "TripDetailScreen"
+            : "TripRequestDetailScreen",
+          { id: item?.id }
+        )
+      }
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}
     >
       <View style={styles.top}>
-        <Text style={styles.topText}>{moment(item.date).format("ddd, MMM D YYYY, ha")}</Text>
         <Text style={styles.topText}>
-          {item.seats} seats { item?.type == "trip_driver" ? "left" : "needed"}{" "}
+          {moment(item.date).format("ddd, MMM D YYYY, ha")}
+        </Text>
+        <Text style={styles.topText}>
+          {item.seats} seats {item?.type == "trip_driver" ? "left" : "needed"}{" "}
           {item?.type == "trip_driver" && (
             <Text style={styles.price}>{` $${item.price}`}</Text>
           )}
@@ -52,7 +64,7 @@ const TripItem = ({ item, onPress, navigation }) => {
               color: item?.type == "trip_driver" ? "#246BCE" : "#C40234",
             }}
           >{`${
-            item?.origin?.terms[item?.origin?.terms.length - 2]?.value
+            item?.origin?.terms[item?.origin?.terms.length - 3]?.value
           }  `}</Text>
           {item?.origin?.description}
         </Text>
@@ -62,7 +74,7 @@ const TripItem = ({ item, onPress, navigation }) => {
               color: item?.type == "trip_driver" ? "#246BCE" : "#C40234",
             }}
           >{`${
-            item?.destination?.terms[item?.destination?.terms.length - 2]?.value
+            item?.destination?.terms[item?.destination?.terms.length - 3]?.value
           }  `}</Text>{" "}
           {item?.destination?.description}
         </Text>
@@ -181,4 +193,3 @@ const styles = StyleSheet.create({
 });
 
 export default TripItem;
-

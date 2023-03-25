@@ -8,29 +8,71 @@ import {
   Image,
   Platform,
   StatusBar,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import React, { useState, useEffect } from "react";
 import NavigationController from "../../components/UI/NavigationController";
 import SecondaryButton from "../../components/UI/SecondaryButton";
 import { contextData } from "../../context/store";
+import moment from "moment";
 
 const TripDetailScreen = ({ route }) => {
   const [tripData, setTripData] = useState({});
-  const { getTrip, loadingTrip } = contextData();
+  const [passengers, setPassengers] = useState([]);
+  const [driver, setDriver] = useState([]);
+  const { getTrip, loadingTrip, getUser } = contextData();
 
   const { id } = route.params;
 
+  useEffect(() => {
+    (async () => {
+      // console.log("TRIP ID", id);
+      const trip = await getTrip(id);
+      // console.log("GOTTEN TRIP DATA!!!", trip);
+      setTripData(trip);
+
+      getPassengers(trip);
+    })();
+  }, [id]);
 
   useEffect(() => {
     (async () => {
-        console.log("TRIP ID", id)
-        const trip = await getTrip(id);
-        console.log("GOTTEN TRIP DATA!!!", trip)
-        // setTripData(trip);
+      try {
+        const data = await getUser(tripData?.creator);
+        console.log("DRIVER", data);
+        setDriver({ ...data });
+        return;
+      } catch (error) {
+        console.log("error 1", error);
+      }
     })();
-  }, [id]);
+  }, [tripData]);
+
+  const getPassengers = async (trip) => {
+    if (trip?.passengers?.length == 0) {
+      let newArr = new Array(parseInt(trip?.seats ? trip?.seats : 0));
+      setPassengers(newArr);
+      return newArr;
+    } else {
+      let newArr = new Array(parseInt(trip?.seats ? trip?.seats : 0));
+      trip?.passengers?.forEach((item) => {
+        getUser(item)
+          .then((res) => {
+            // console.log("LETS SEE", res);
+            newArr = [{ ...res }];
+            setPassengers([
+              ...newArr,
+              ...Array(parseInt(trip?.seats ? trip?.seats - 1 : 0)),
+            ]);
+            // newArr.unshift({ ...res });
+          })
+          .catch((error) => console.log(error));
+      });
+    }
+  };
+
+  // console.log("THE ARR", passengers);
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -46,37 +88,60 @@ const TripDetailScreen = ({ route }) => {
               <View style={styles.addresses}>
                 <View style={styles.extra}>
                   <View style={styles.top}>
-                    <Text style={styles.city}>Toronto</Text>
-                    <Text style={styles.time}>Fri, Feb 24 at 4:00pm</Text>
+                    <Text style={styles.city}>
+                      {
+                        tripData?.origin?.terms[
+                          tripData?.origin?.terms.length - 3
+                        ]?.value
+                      }
+                    </Text>
+                    <Text style={styles.time}>
+                      {moment(tripData.date).format("ddd, MMM D YYYY, ha")}
+                    </Text>
                   </View>
-                  <Text style={styles.location}>
-                    100 Queen st W, Toronto, ON M5H 2N2, Canada
+                  <Text style={styles.location} numberOfLines={1}>
+                    {tripData?.origin?.description}
                   </Text>
                 </View>
 
                 <View>
                   <View style={styles.top}>
-                    <Text style={styles.city}>Kitchener</Text>
-                    <Text style={styles.time}>Fri, Feb 24 at 4:00pm</Text>
+                    <Text style={styles.city}>
+                      {
+                        tripData?.destination?.terms[
+                          tripData?.destination?.terms.length - 3
+                        ]?.value
+                      }
+                    </Text>
+                    <Text style={styles.time}>
+                      est. {""}
+                      {moment(tripData.date)
+                        .add(1, "hours")
+                        .format("ddd, MMM D YYYY, ha")}
+                    </Text>
                   </View>
                   <Text style={styles.location}>
-                    1400 Ottawa St S, Kitchener, ON N2E 4E2, Canada
+                    {tripData?.destination?.description}
                   </Text>
                 </View>
               </View>
 
               <View style={styles.seat}>
                 <View style={styles.NumOfseat}>
-                  <Text style={styles.seatText}>3 seats left</Text>
+                  <Text style={styles.seatText}>
+                    {tripData.seats} seats left
+                  </Text>
                 </View>
                 <View style={styles.priceOfseat}>
                   <Text style={[styles.seatText, styles.green]}>
-                    $17 per seat
+                    {` $${tripData.price}`} per seat
                   </Text>
                 </View>
               </View>
 
-              <Text style={styles.additionaMessage}>"Going back home"</Text>
+              <Text style={styles.additionaMessage}>
+                {tripData?.description}
+              </Text>
             </View>
 
             <Pressable
@@ -88,7 +153,33 @@ const TripDetailScreen = ({ route }) => {
               <View style={styles.detailFirst}>
                 <Text style={styles.detailItemText}>Booked: </Text>
                 <View style={styles.icons}>
-                  <View style={styles.iconCointainer}>
+                  {[...passengers].map((item, index) =>
+                    item == undefined ? (
+                      <View style={styles.iconCointainer} key={index}>
+                        <FontAwesome name="user" size={24} color="white" />
+                      </View>
+                    ) : (
+                      <View style={styles.iconCointainer} key={index}>
+                          <Image
+                            source={{
+                              uri: !item?.profile_picture
+                                ? "https://static-00.iconduck.com/assets.00/profile-circle-icon-512x512-zxne30hp.png"
+                                : item?.profile_picture
+                            }}
+                            style={styles.passengerImage}
+                          />
+                      </View>
+                    )
+                  )}
+
+                  {/* {passengers.map((item) => {
+                    item == undefined && (
+                      <View style={styles.iconCointainer}>
+                        <FontAwesome name="user" size={24} color="white" />
+                      </View>
+                    );
+                  })} */}
+                  {/* <View style={styles.iconCointainer}>
                     <FontAwesome name="user" size={24} color="white" />
                   </View>
                   <View style={styles.iconCointainer}>
@@ -96,7 +187,7 @@ const TripDetailScreen = ({ route }) => {
                   </View>
                   <View style={styles.iconCointainer}>
                     <FontAwesome name="user" size={24} color="white" />
-                  </View>
+                  </View> */}
                 </View>
               </View>
               <Pressable>
@@ -114,28 +205,51 @@ const TripDetailScreen = ({ route }) => {
                 <View style={styles.profileImageContainer}>
                   <Image
                     style={styles.profileImage}
-                    source={require("../../assets/user.jpg")}
+                    source={{
+                      uri: driver?.profile_picture
+                        ? driver?.profile_picture
+                        : "https://static-00.iconduck.com/assets.00/profile-circle-icon-512x512-zxne30hp.png",
+                    }}
                   />
                 </View>
-                <Text style={styles.detailItemText}>Tobiloba </Text>
+                <Text style={styles.detailItemText}>{driver?.name}</Text>
               </View>
               <Pressable>
                 <FontAwesome name="angle-right" size={30} color="black" />
               </Pressable>
             </Pressable>
-            <View style={styles.carDetails}>
-              <View style={styles.carImgContainer}>
-                <Image
-                  style={styles.carImg}
-                  source={require("../../assets/car.jpeg")}
-                />
+            {tripData?.vehicle?.model ? (
+              <View style={styles.carDetails}>
+                <View style={styles.carImgContainer}>
+                  <Image
+                    style={styles.carImg}
+                    source={{
+                      uri: tripData?.vehicle?.image
+                        ? tripData?.vehicle?.image
+                        : "https://images.prismic.io/brimbdollar/95ed2cc20f5cffaa8f8810b160205a20f5ee2e77_winter-driving-black-ice.png?auto=compress,format",
+                    }}
+                  />
+                  {!tripData?.vehicle?.image && (
+                    <Text style={styles.carSmallText}>Vehicle placeholder</Text>
+                  )}
+                </View>
+                <View style={styles.carInfoContainer}>
+                  <Text style={styles.seatText}>
+                    {tripData?.vehicle?.model}
+                  </Text>
+                  <Text style={styles.location}>
+                    {tripData?.vehicle?.color}
+                  </Text>
+                  <Text style={styles.location}>{tripData?.vehicle?.year}</Text>
+                </View>
               </View>
-              <View style={styles.carInfoContainer}>
-                <Text style={styles.seatText}>Chevrolet</Text>
-                <Text style={styles.location}>Blue</Text>
-                <Text style={styles.location}>2015</Text>
+            ) : (
+              <View style={styles.emptyCarState}>
+                <Text style={styles.emptyCarStateText}>
+                  Vehicle Data not added
+                </Text>
               </View>
-            </View>
+            )}
           </ScrollView>
           <View style={styles.requestContainer}>
             <SecondaryButton
@@ -258,6 +372,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 5,
+    overflow: "hidden",
+  },
+  passengerImage: {
+    width: "100%",
+    height: "100%",
   },
   profileImageContainer: {
     width: 50,
@@ -287,6 +406,25 @@ const styles = StyleSheet.create({
   },
   carInfoContainer: {
     marginLeft: 15,
+  },
+  carSmallText: {
+    fontSize: 12,
+    color: "#616060",
+    textAlign: "center",
+  },
+  emptyCarState: {
+    width: "100%",
+    padding: 20,
+    backgroundColor: "white",
+    marginTop: 25,
+    minHeight: 250,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyCarStateText: {
+    fontWeight: "500",
+    fontSize: 18,
+    color: "#616060",
   },
   requestContainer: {
     paddingHorizontal: 20,

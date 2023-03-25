@@ -18,6 +18,7 @@ import CustomTab from "../../components/UI/CustomTab";
 import TripItem from "../../components/UI/TripItem";
 import NavigationController from "../../components/UI/NavigationController";
 import { contextData } from "../../context/store";
+import moment from "moment";
 
 const forFlat = [
   {
