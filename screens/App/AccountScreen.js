@@ -28,7 +28,7 @@ const AccountScreen = ({ navigation }) => {
       label: "View your profile",
       imageUri: user?.profile_picture || null,
       imagePath: true,
-      onPress: () => navigation.navigate("ProfileScreen"),
+      onPress: () => navigation.navigate("ProfileScreen",  { visitorId: null }),
     },
   ]);
   const isFocused = useIsFocused();
@@ -69,11 +69,11 @@ const AccountScreen = ({ navigation }) => {
     //   label: "ID verification",
     //   onPress: () => navigation.navigate("ProfileScreen")
     // },
-    {
-      id: 3,
-      label: "Notifications",
-      onPress: () => navigation.navigate("NotificationScreen"),
-    },
+    // {
+    //   id: 3,
+    //   label: "Notifications",
+    //   onPress: () => navigation.navigate("NotificationScreen"),
+    // },
     {
       id: 4,
       label: "About",

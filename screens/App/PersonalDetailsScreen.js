@@ -35,6 +35,7 @@ const data = [
 const PersonalDetailsScreen = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
@@ -59,6 +60,7 @@ const PersonalDetailsScreen = () => {
         const names = userData?.name ? userData?.name?.split(" ") : ["", ""];
         setFirstName(names[0]);
         setLastName(names[1]);
+        setPhone(userData?.phone)
         setDescription(userData?.description ? userData?.description : "");
         const dob = userData?.date_of_birth
           ? getFormatedDate(new Date(userData?.date_of_birth))
@@ -81,6 +83,7 @@ const PersonalDetailsScreen = () => {
   const handleSubmit = () => {
     handleUserUpdate({
       name: `${firstName} ${lastName}`,
+      phone: phone,
       date_of_birth: selectedDate,
       description: description,
       gender: gender,
@@ -114,6 +117,15 @@ const PersonalDetailsScreen = () => {
               style={styles.input}
               value={lastName}
               onChangeText={(text) => setLastName(text)}
+            />
+          </View>
+
+          <View style={styles.inputItem}>
+            <Text style={styles.inputLabel}>Phone number</Text>
+            <TextInput
+              style={styles.input}
+              value={phone}
+              onChangeText={(text) => setPhone(text)}
             />
           </View>
 

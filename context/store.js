@@ -8,6 +8,7 @@ import {
   updateProfile,
   onAuthStateChanged,
   deleteUser,
+  updatePassword,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseApp, db } from "../http";
@@ -53,6 +54,9 @@ const AppContext = createContext({
   fetchingTrips: false,
   getTrip: () => {},
   loadingTrip: false,
+  handleChangePassword: () => {},
+  changingPassword: false,
+  getUser: ()=> {}
 });
 
 const ContextProvider = ({ children }) => {
@@ -69,6 +73,7 @@ const ContextProvider = ({ children }) => {
   const [searchedTrips, setSearchedTrips] = useState([]);
   const [fetchingTrips, setFetchingTrips] = useState(false);
   const [loadingTrip, setLoadingTrip] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   // console.log(token, "this is the token");
 
@@ -86,6 +91,8 @@ const ContextProvider = ({ children }) => {
           "userToken",
           userCredential._tokenResponse.idToken
         );
+        AsyncStorage.setItem("email", data.email);
+        AsyncStorage.setItem("password", data.password);
         setIsAuthLoading(false);
       })
       .catch((error) => {
@@ -110,11 +117,14 @@ const ContextProvider = ({ children }) => {
           "userToken",
           userCredential._tokenResponse.idToken
         );
+        AsyncStorage.setItem("email", data.email);
+        AsyncStorage.setItem("password", data.password);
         setIsAuthLoading(false);
 
         const usersRef = collection(db, "users");
         setDoc(doc(usersRef, userCredential.user.uid), {
           name: data.fullName,
+          phone: data?.phone,
           createdAt: moment(new Date()).format("MMMM, YYYY"),
           user_img: null,
           description: "",
@@ -130,6 +140,25 @@ const ContextProvider = ({ children }) => {
             ? error?.message?.split(":")[1]
             : "Error signing up your account!"
         );
+      });
+  };
+
+  // FUNCTION TO HANDLE CHANGE OF PASSWORD
+  const handleChangePassword = async (password) => {
+    setChangingPassword(true);
+    const user = auth.currentUser;
+
+
+    updatePassword(user, password)
+      .then(() => {
+        Alert.alert("Operation Successful!", "Password changed successfully!");
+        setChangingPassword(false);
+        console.log("Change successfully");
+      })
+      .catch((error) => {
+        setChangingPassword(false);
+        Alert.alert("Operation error!", "Error updating password");
+        console.log("Password change error", error);
       });
   };
 
@@ -277,7 +306,7 @@ const ContextProvider = ({ children }) => {
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach(async (doc) => {
         const data = doc.data();
-        data.id = doc?.id
+        data.id = doc?.id;
         // data.creatorData = await getUser(data?.creator);
 
         const originTerms = data?.origin?.terms;
@@ -310,8 +339,8 @@ const ContextProvider = ({ children }) => {
         // console.log(doc.id, " => ", doc.data());
       });
 
-      const correctRequestedTrips1 = sortedArr(requestedTrips1)
-      const correctRequestedTrips2 = sortedArr(requestedTrips2)
+      const correctRequestedTrips1 = sortedArr(requestedTrips1);
+      const correctRequestedTrips2 = sortedArr(requestedTrips2);
       setSearchedTrips([...correctRequestedTrips1, ...correctRequestedTrips2]);
       // console.log("REQUESTED TRIPS", requestedTrips);
       setFetchingTrips(false);
@@ -337,12 +366,10 @@ const ContextProvider = ({ children }) => {
         console.log("No such document!");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       setLoadingTrip(false);
     }
   };
-
-
 
   return (
     <AppContext.Provider
@@ -371,6 +398,8 @@ const ContextProvider = ({ children }) => {
         getUser: getUser,
         getTrip: getTrip,
         loadingTrip: loadingTrip,
+        handleChangePassword: handleChangePassword,
+        changingPassword: changingPassword,
       }}
     >
       {children}

@@ -16,7 +16,7 @@ const TripsScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <TopTitle />
-      <CustomTab items={items} setItems={setItems}/>
+      {/* <CustomTab items={items} setItems={setItems}/> */}
       <TripList />
     </SafeAreaView>
   );

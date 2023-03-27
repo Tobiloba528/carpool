@@ -1,70 +1,92 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import React, { forwardRef} from "react";
+import React, { forwardRef } from "react";
 import RBSheet from "react-native-raw-bottom-sheet";
 
-const CustomImageBottomSheet = forwardRef(({ myRef, handleCameraPhoto, handleLibraryPhoto, handleCancel }) => {
-  return (
-    <RBSheet
-      ref={myRef}
-      height={400}
-      closeOnDragDown={true}
-      closeOnPressMask={true}
-      customStyles={{
-        wrapper: {
-          backgroundColor: "transparent",
-        },
-        draggableIcon: {
-          backgroundColor: "#000",
-        },
-        container: {
-          borderRadius: 20,
-          shadowColor: "#000",
-          overflow: "visible",
-          shadowOffset: {
-            width: 1,
-            height: 2,
+const CustomImageBottomSheet = forwardRef(
+  ({
+    myRef,
+    handleCameraPhoto,
+    handleLibraryPhoto,
+    handleCancel,
+    image,
+    visitorId,
+  }) => {
+    return (
+      <RBSheet
+        ref={myRef}
+        height={400}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        customStyles={{
+          wrapper: {
+            backgroundColor: "transparent",
           },
-          shadowOpacity: 0.25,
-          shadowRadius: 4,
-          elevation: 5,
-        },
-      }}
-    >
-      <View style={styles.bottomSheetContainer}>
-        <Text style={styles.uploadTitle}>Upload Photo</Text>
-        <Text style={styles.uploadInfo}>Choose Your Profile Picture</Text>
+          draggableIcon: {
+            backgroundColor: "#000",
+          },
+          container: {
+            borderRadius: 20,
+            shadowColor: "#000",
+            overflow: "visible",
+            shadowOffset: {
+              width: 1,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 4,
+            elevation: 5,
+          },
+        }}
+      >
+        <View style={styles.bottomSheetContainer}>
+          <Text style={styles.uploadTitle}>
+            {!visitorId ? "Upload" : "View"} Photo
+          </Text>
+          <Text style={styles.uploadInfo}>
+            {!visitorId ? "Choose Your Profile Picture" : "View picture"}
+          </Text>
 
-        <Pressable
-          onPress={handleCameraPhoto}
-          style={({ pressed }) => [
-            styles.bottomSheetButton,
-            pressed && styles.bottomSheetButtonPressed,
-          ]}
-        >
-          <Text style={styles.bottomSheetBottonText}>Take Photo</Text>
-        </Pressable>
-        <Pressable
-          onPress={handleLibraryPhoto}
-          style={({ pressed }) => [
-            styles.bottomSheetButton,
-            pressed && styles.bottomSheetButtonPressed,
-          ]}
-        >
-          <Text style={styles.bottomSheetBottonText}>Choose from Library</Text>
-        </Pressable>
-        <Pressable
-          onPress={handleCancel}
-          style={({ pressed }) => [
-            styles.bottomSheetButton,
-            pressed && styles.bottomSheetButtonPressed,
-          ]}
-        >
-          <Text style={styles.bottomSheetBottonText}>Cancel</Text>
-        </Pressable>
-      </View>
-    </RBSheet>
-  );
-});
+          {!visitorId && (
+            <Pressable
+              onPress={handleCameraPhoto}
+              style={({ pressed }) => [
+                styles.bottomSheetButton,
+                pressed && styles.bottomSheetButtonPressed,
+              ]}
+            >
+              <Text style={styles.bottomSheetBottonText}>Take Photo</Text>
+            </Pressable>
+          )}
+
+          {!visitorId && (
+            <Pressable
+              onPress={handleLibraryPhoto}
+              style={({ pressed }) => [
+                styles.bottomSheetButton,
+                pressed && styles.bottomSheetButtonPressed,
+              ]}
+            >
+              <Text style={styles.bottomSheetBottonText}>
+                Choose from Library
+              </Text>
+            </Pressable>
+          )}
+          <Pressable
+            onPress={handleCancel}
+            style={({ pressed }) => [
+              styles.bottomSheetButton,
+              pressed && styles.bottomSheetButtonPressed,
+            ]}
+          >
+            <Text style={styles.bottomSheetBottonText}>
+              {image ? "View" : "Cancel"}
+            </Text>
+          </Pressable>
+        </View>
+      </RBSheet>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   bottomSheetContainer: {

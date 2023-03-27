@@ -9,6 +9,7 @@ import {
   Platform,
   StatusBar,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import React, { useState, useEffect } from "react";
@@ -16,15 +17,44 @@ import NavigationController from "../../components/UI/NavigationController";
 import SecondaryButton from "../../components/UI/SecondaryButton";
 import { contextData } from "../../context/store";
 import moment from "moment";
+import * as SMS from "expo-sms";
 
-const TripDetailScreen = ({ route }) => {
+const TripDetailScreen = ({ navigation, route }) => {
   const [tripData, setTripData] = useState({});
   const [passengers, setPassengers] = useState([]);
   const [driver, setDriver] = useState([]);
+  const [isAvailable, setIsAvailable] = useState(false);
   const { getTrip, loadingTrip, getUser } = contextData();
 
   const { id } = route.params;
 
+  useEffect(() => {
+    (async () => {
+      let isAvail = await SMS.isAvailableAsync();
+      setIsAvailable(isAvail);
+    })();
+  }, []);
+
+
+
+  const handleRequest = async () => {
+    const firstName = driver?.name?.split(" ")[0];
+    const destination =
+      tripData?.destination?.terms[tripData?.destination?.terms.length - 3]
+        ?.value;
+    const origin =
+      tripData?.origin?.terms[tripData?.origin?.terms.length - 3]?.value;
+    if (isAvailable) {
+      const { result } = await SMS.sendSMSAsync(
+        [driver?.phone],
+        `Hello ${firstName}, are there still available seats for the ride from ${origin} to ${destination}`
+      );
+    } else {
+      Alert.alert("Unable to complete", "SMS not available");
+    }
+  };
+
+  
   useEffect(() => {
     (async () => {
       // console.log("TRIP ID", id);
@@ -40,7 +70,7 @@ const TripDetailScreen = ({ route }) => {
     (async () => {
       try {
         const data = await getUser(tripData?.creator);
-        console.log("DRIVER", data);
+        // console.log("DRIVER", data);
         setDriver({ ...data });
         return;
       } catch (error) {
@@ -65,7 +95,6 @@ const TripDetailScreen = ({ route }) => {
               ...newArr,
               ...Array(parseInt(trip?.seats ? trip?.seats - 1 : 0)),
             ]);
-            // newArr.unshift({ ...res });
           })
           .catch((error) => console.log(error));
       });
@@ -73,6 +102,12 @@ const TripDetailScreen = ({ route }) => {
   };
 
   // console.log("THE ARR", passengers);
+
+  const viewDriver = () => {
+    navigation.navigate("ProfileScreen", {
+      visitorId: tripData?.creator,
+    });
+  };
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -160,14 +195,14 @@ const TripDetailScreen = ({ route }) => {
                       </View>
                     ) : (
                       <View style={styles.iconCointainer} key={index}>
-                          <Image
-                            source={{
-                              uri: !item?.profile_picture
-                                ? "https://static-00.iconduck.com/assets.00/profile-circle-icon-512x512-zxne30hp.png"
-                                : item?.profile_picture
-                            }}
-                            style={styles.passengerImage}
-                          />
+                        <Image
+                          source={{
+                            uri: !item?.profile_picture
+                              ? "https://static-00.iconduck.com/assets.00/profile-circle-icon-512x512-zxne30hp.png"
+                              : item?.profile_picture,
+                          }}
+                          style={styles.passengerImage}
+                        />
                       </View>
                     )
                   )}
@@ -200,6 +235,7 @@ const TripDetailScreen = ({ route }) => {
                 styles.detailItem,
                 pressed && styles.detailItemPressed,
               ]}
+              onPress={viewDriver}
             >
               <View style={styles.detailFirst}>
                 <View style={styles.profileImageContainer}>
@@ -256,6 +292,7 @@ const TripDetailScreen = ({ route }) => {
               title={"Request to book"}
               radius={10}
               isValid={true}
+              onPress={handleRequest}
             />
           </View>
         </View>

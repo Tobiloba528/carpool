@@ -4,9 +4,23 @@ import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import * as SplashScreen from 'expo-splash-screen';
+import { Asset } from 'expo-asset';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
+
+function cacheImages(images) {
+  return images.map(image => {
+    if (typeof image === 'string') {
+      return Image.prefetch(image);
+    } else {
+      return Asset.fromModule(image).downloadAsync();
+    }
+  });
+}
+
+
 
 import PreviewScreen from "./screens/Auth/PreviewScreen";
 import LoginScreen from "./screens/Auth/LoginScreen";
@@ -22,12 +36,14 @@ import SearchAddressScreen from "./screens/App/SearchAddressScreen";
 import RequestedTripsScreen from "./screens/App/RequestedTripsScreen";
 import TripDetailScreen from "./screens/App/TripDetailScreen";
 import PostRequest from "./screens/App/PostRequest";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ProfileSettings from "./screens/App/ProfileSettings";
 import PersonalDetailsScreen from "./screens/App/PersonalDetailsScreen";
 import NotificationScreen from "./screens/App/NotificationScreen";
 import AboutScreen from "./screens/App/AboutScreen";
 import TripRequestDetailScreen from "./screens/App/TripRequestDetailScreen";
+import ChangePassword from "./screens/App/ChangePassword";
+import ImageScreen from "./screens/App/ImageScreen";
 
 const AuthNavigator = () => {
   const navigation = useNavigation();
@@ -210,6 +226,14 @@ const AppNavigator = () => {
         }}
       />
       <Stack.Screen
+        name="ChangePassword"
+        component={ChangePassword}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
         name="PersonalDetailsScreen"
         component={PersonalDetailsScreen}
         options={{
@@ -226,6 +250,13 @@ const AppNavigator = () => {
       <Stack.Screen
         name="AboutScreen"
         component={AboutScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="imageScreen"
+        component={ImageScreen}
         options={{
           headerShown: false,
         }}
@@ -261,6 +292,35 @@ const Root = () => {
 };
 
 export default function App() {
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  useEffect(() => {
+    async function loadResourcesAndDataAsync() {
+      try {
+        SplashScreen.preventAutoHideAsync();
+
+        const imageAssets = cacheImages([
+          require('./assets/background2.jpg'),
+        ]);
+
+        await Promise.all([...imageAssets]);
+      } catch (e) {
+        // You might want to provide this error information to an error reporting service
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+        SplashScreen.hideAsync();
+      }
+    }
+
+    loadResourcesAndDataAsync();
+  }, []);
+
+  if (!appIsReady) {
+    return null;
+  }
+
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />

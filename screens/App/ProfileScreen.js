@@ -24,7 +24,7 @@ import { storage } from "../../http";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import CustomImageBottomSheet from "../../components/UI/CustomImageBottomSheet";
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState("");
   const [createdAt, setCreatedAt] = useState(null);
   const [age, setAge] = useState(null);
@@ -39,28 +39,49 @@ const ProfileScreen = ({ navigation }) => {
     userId,
     handleUserUpdate,
     updatingUserData,
+    getUser,
   } = contextData();
   const isFocused = useIsFocused();
   const refRBSheet = useRef();
 
+  const { visitorId } = route.params;
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userData = await getUserData();
-        // console.log("user data", userData);
-        const names = userData?.name ? userData?.name?.split(" ") : ["", ""];
-        setFirstName(names[0]);
-        setGender(userData?.gender);
-        setDescription(userData.description);
-        setImageUri(userData?.profile_picture);
+        if (visitorId) {
+          const userData = await getUser(visitorId);
+          const names = userData?.name ? userData?.name?.split(" ") : ["", ""];
+          setFirstName(names[0]);
+          setGender(userData?.gender);
+          setDescription(userData.description);
+          setImageUri(userData?.profile_picture);
 
-        const date = userData?.createdAt;
-        // console.log("CREATED AT", date);
-        setCreatedAt(date);
+          const date = userData?.createdAt;
+          // console.log("CREATED AT", date);
+          setCreatedAt(date);
 
-        if (userData?.date_of_birth) {
-          const age = getAge(userData?.date_of_birth);
-          setAge(age);
+          if (userData?.date_of_birth) {
+            const age = getAge(userData?.date_of_birth);
+            setAge(age);
+          }
+        } else {
+          const userData = await getUserData();
+          // console.log("user data", userData);
+          const names = userData?.name ? userData?.name?.split(" ") : ["", ""];
+          setFirstName(names[0]);
+          setGender(userData?.gender);
+          setDescription(userData.description);
+          setImageUri(userData?.profile_picture);
+
+          const date = userData?.createdAt;
+          // console.log("CREATED AT", date);
+          setCreatedAt(date);
+
+          if (userData?.date_of_birth) {
+            const age = getAge(userData?.date_of_birth);
+            setAge(age);
+          }
         }
       } catch (error) {
         console.log(error);
@@ -85,9 +106,13 @@ const ProfileScreen = ({ navigation }) => {
             // console.log("THE URL", url);
           })
           .catch((error) => console.log(error));
+        Alert.alert("Operation error", "Error uploading picture");
         console.log("Uploaded a blob or file!");
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error);
+        Alert.alert("Operation error", "Error uploading picture");
+      });
   };
 
   const takePhotoFromCamera = async () => {
@@ -121,6 +146,7 @@ const ProfileScreen = ({ navigation }) => {
         );
       }
     } catch (error) {
+      Alert.alert("Operation error", "Error uploading picture");
       console.log(error);
     }
   };
@@ -157,12 +183,22 @@ const ProfileScreen = ({ navigation }) => {
         );
       }
     } catch (error) {
+      Alert.alert("Operation error", "Error uploading picture");
       console.log(error);
     }
   };
 
   const closeButtomSheet = () => {
     refRBSheet.current.close();
+  };
+
+  const checkImage = () => {
+    if (image || imageUri) {
+      refRBSheet.current.close();
+      navigation.navigate("imageScreen", { image: image || imageUri });
+    } else {
+      refRBSheet.current.close();
+    }
   };
 
   return (
@@ -175,8 +211,12 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.contentContainer}>
           <NavigationController
             title={`${firstName}'s profile`}
-            right="Edit"
-            onPressRight={() => navigation.navigate("ProfileSettings")}
+            right={!visitorId && "Edit"}
+            onPressRight={
+              !visitorId
+                ? () => navigation.navigate("ProfileSettings")
+                : () => {}
+            }
           />
           <ScrollView>
             <View style={styles.contentContainer}>
@@ -260,7 +300,9 @@ const ProfileScreen = ({ navigation }) => {
             myRef={refRBSheet}
             handleCameraPhoto={takePhotoFromCamera}
             handleLibraryPhoto={choosePhotoFromLibrary}
-            handleCancel={closeButtomSheet}
+            handleCancel={checkImage}
+            image={image || imageUri}
+            visitorId={visitorId}
           />
         </View>
       )}

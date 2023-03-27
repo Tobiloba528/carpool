@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -39,6 +39,7 @@ import CustomDate from "../../components/UI/CustomDate";
 import CustomAddressSearch from "../../components/UI/CustomAddressSearch";
 import CustomImageBottomSheet from "../../components/UI/CustomImageBottomSheet";
 import { storage } from "../../http";
+import { async } from "@firebase/util";
 
 const PostTrip = ({ navigation }) => {
   const [skipVehicle, setSkipVehicle] = useState(false);
@@ -60,7 +61,6 @@ const PostTrip = ({ navigation }) => {
   const [vehicleType, setVehicleType] = useState(null);
   const [vehicleLicensePlate, setVehicleLicensePlate] = useState(null);
   const [vehicleYear, setVehicleYear] = useState(null);
-
   const [image, setImage] = useState(null);
 
   const refRBSheet = useRef();
@@ -138,10 +138,16 @@ const PostTrip = ({ navigation }) => {
             console.log("Totally done.");
             setVehicleImage(url);
           })
-          .catch((error) => console.log(error));
+          .catch((error) => {
+            console.log(error);
+            Alert.alert("Operation error", "Error uploading picture");
+          });
         console.log("Uploaded a blob or file!");
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error);
+        Alert.alert("Operation error", "Error uploading picture");
+      });
   };
 
   const takePhotoFromCamera = async () => {
@@ -175,6 +181,7 @@ const PostTrip = ({ navigation }) => {
         );
       }
     } catch (error) {
+      Alert.alert("Operation error", "Error uploading picture");
       console.log(error);
     }
   };
@@ -211,12 +218,22 @@ const PostTrip = ({ navigation }) => {
         );
       }
     } catch (error) {
+      Alert.alert("Operation error", "Error uploading picture");
       console.log(error);
     }
   };
 
   const closeButtomSheet = () => {
     refRBSheet.current.close();
+  };
+
+  const checkImage = () => {
+    if (image) {
+      refRBSheet.current.close();
+      navigation.navigate("imageScreen", { image: image });
+    } else {
+      refRBSheet.current.close();
+    }
   };
 
   return (
@@ -514,7 +531,8 @@ const PostTrip = ({ navigation }) => {
         myRef={refRBSheet}
         handleCameraPhoto={takePhotoFromCamera}
         handleLibraryPhoto={choosePhotoFromLibrary}
-        handleCancel={closeButtomSheet}
+        handleCancel={checkImage}
+        image={image}
       />
     </SafeAreaView>
   );

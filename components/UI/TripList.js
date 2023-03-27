@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   ScrollView,
+  ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,14 +16,12 @@ const TripList = () => {
   const [trips, setTrips] = useState([]);
   const navigation = useNavigation();
 
-
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
   }, []);
-
 
   return (
     <ScrollView
@@ -31,22 +30,27 @@ const TripList = () => {
       }
       contentContainerStyle={[styles.container]}
     >
-      <View style={styles.empty}>
-        <Ionicons
-          name="car-sport"
-          size={50}
-          color={"#2E2E2E"}
-          //   style={{ fontSize: 30 }}
-        />
-        <Text style={styles.title}>Driving or need a ride?</Text>
-        <Text style={styles.info}>Post a trip or request a ride here.</Text>
-
-        <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-          onPress={() => navigation.navigate("HeadingScreen")}
+      <View style={styles.shadow}>
+        <ImageBackground
+          style={styles.empty}
+          source={require("../../assets/background2.jpg")}
         >
-          <Text style={styles.buttonText}>Let's go</Text>
-        </Pressable>
+          <Ionicons
+            name="car-sport"
+            size={50}
+            color={"#2E2E2E"}
+            //   style={{ fontSize: 30 }}
+          />
+          <Text style={styles.title}>Driving or need a ride?</Text>
+          <Text style={styles.info}>Post a trip or request a ride here.</Text>
+
+          <Pressable
+            style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+            onPress={() => navigation.navigate("HeadingScreen")}
+          >
+            <Text style={styles.buttonText}>Let's go</Text>
+          </Pressable>
+        </ImageBackground>
       </View>
     </ScrollView>
   );
@@ -57,14 +61,27 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     backgroundColor: "white",
     flex: 1,
+    marginTop: 30,
   },
   empty: {
     flex: 1,
-    backgroundColor: "#36E0D2",
+    backgroundColor: "#E7F5E9",
     borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 15,
+    overflow: "hidden",
+  },
+  shadow: {
+    flex: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 10,
   },
   title: {
     fontWeight: "bold",
@@ -78,16 +95,17 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   button: {
-    backgroundColor: "#E7E7E7",
+    backgroundColor: "#006A61",
     paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 10,
   },
   buttonText: {
     fontWeight: "700",
+    color: "white",
   },
   pressed: {
-    backgroundColor: "#DADADA",
+    opacity: 0.7,
   },
 });
 

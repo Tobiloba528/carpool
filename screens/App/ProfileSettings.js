@@ -22,9 +22,14 @@ const firstArray = [
     },
     {
       id: 2,
-      label: "Vehicles",
-      onPress: () => navigation.navigate("ProfileScreen"),
+      label: "Change password",
+      onPress: () => navigation.navigate("ChangePassword"),
     },
+    // {
+    //   id: 3,
+    //   label: "Vehicles",
+    //   onPress: () => navigation.navigate("ProfileScreen"),
+    // },
   ];
 
   const secondArray = [
@@ -52,7 +57,7 @@ const firstArray = [
               <Text style={styles.titleText}>Profile Settings</Text>
             </View>
             <AccountList items={firstArray} />
-            <AccountList items={secondArray} />
+            {/* <AccountList items={secondArray} /> */}
             {/* <View style={styles.version}>
               <Text style={styles.versionText}>Version 1.0.0</Text>
             </View> */}

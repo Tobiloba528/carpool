@@ -10,7 +10,7 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import { Formik } from "formik";
 import * as Yup from "yup";
 
@@ -23,6 +23,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 const RegisterSchema = Yup.object().shape({
   fullName: Yup.string().min(3, "Too Short!").required("Required"),
   email: Yup.string().email("Invalid email").required("Email Required"),
+  phone: Yup.string().required("Phone number is required"),
   password: Yup.string().min(7, "Too Short!").required("Password Required"),
   confirmPassword: Yup.string()
     .min(7, "Too Short!")
@@ -50,6 +51,7 @@ const RegisterScreen = ({ navigation }) => {
             email: "",
             password: "",
             confirmPassword: "",
+            phone: ""
           }}
           validationSchema={RegisterSchema}
           onSubmit={(values) => handleSubmit(values)}
@@ -104,6 +106,20 @@ const RegisterScreen = ({ navigation }) => {
                 error={errors.email}
                 setFieldTouched={setFieldTouched}
                 touched={touched.email}
+              />
+
+              <Input
+                placeholder={"Phone Number"}
+                // icon={
+                //   <Feather name="phone" size={25} style={styles.icon} />
+                // }
+                keyboardType="number-pad"
+                value={values.phone}
+                handleChange={handleChange}
+                name="phone"
+                error={errors.phone}
+                setFieldTouched={setFieldTouched}
+                touched={touched.phone}
               />
               <Input
                 placeholder={"Password"}
@@ -171,6 +187,7 @@ const styles = StyleSheet.create({
 
   contentContainer: {
     flex: 1,
+    paddingBottom: 20
     // backgroundColor: "red",
     // marginTop: 30
   },

@@ -6,7 +6,9 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  StatusBar,
 } from "react-native";
+import * as SMS from "expo-sms";
 import React, { useEffect, useState } from "react";
 import NavigationController from "../../components/UI/NavigationController";
 import { contextData } from "../../context/store";
@@ -16,8 +18,33 @@ import SecondaryButton from "../../components/UI/SecondaryButton";
 const TripRequestDetailScreen = ({ route }) => {
   const [tripData, setTripData] = useState({});
   const [user, setUser] = useState({});
+  const [isAvailable, setIsAvailable] = useState(false);
   const { getTrip, loadingTrip, getUser } = contextData();
   const { id } = route.params;
+
+  useEffect(() => {
+    (async () => {
+      let isAvail = await SMS.isAvailableAsync();
+      setIsAvailable(isAvail);
+    })();
+  }, []);
+
+  const handleRequest = async () => {
+    const firstName = user?.name?.split(" ")[0];
+    const destination =
+      tripData?.destination?.terms[tripData?.destination?.terms.length - 3]
+        ?.value;
+    const origin =
+      tripData?.origin?.terms[tripData?.origin?.terms.length - 3]?.value;
+    if (isAvailable) {
+      const { result } = await SMS.sendSMSAsync(
+        [user?.phone],
+        `Hello ${firstName}, would you like a seat for a ride from ${origin} to ${destination}`
+      );
+    } else {
+      Alert.alert("Unable to complete", "SMS not available");
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -85,6 +112,7 @@ const TripRequestDetailScreen = ({ route }) => {
               title={`Invite ${user?.name?.split(" ")[0]} to join a trip`}
               radius={10}
               isValid={true}
+              onPress={handleRequest}
             />
           </View>
         </View>
