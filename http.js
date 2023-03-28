@@ -2,12 +2,13 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage, ref } from "firebase/storage";
+import { FIREBASE_API } from "@env"
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAnQZ4TqyeJox5zyNL6g2fl-M9a6atQPa4",
+  apiKey:FIREBASE_API,
   authDomain: "carpool-89191.firebaseapp.com",
   projectId: "carpool-89191",
   storageBucket: "carpool-89191.appspot.com",

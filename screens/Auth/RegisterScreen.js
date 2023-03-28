@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   imageContainer: {
-    height: Platform.OS === "android" ? "20%" : "30%",
+    height: Platform.OS === "android" ? "20%" : "20%",
     width: "80%",
     marginTop: Platform.OS === "android" ? 20 : 30,
     alignSelf: "center",
@@ -219,6 +219,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "center",
     marginTop: 20,
+    marginBottom: 50
   },
   bottomLink: {
     color: "#006A61",

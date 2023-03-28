@@ -50,6 +50,7 @@ const RequestedTripsScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     setTrips(searchedTrips);
+    setFilteredTrips(searchedTrips)
   }, [fetchingTrips]);
 
   useEffect(() => {
@@ -69,7 +70,7 @@ const RequestedTripsScreen = ({ navigation, route }) => {
         if (item?.type === "trip_rider") {
           newArr.push(item);
         }
-        setFilteredTrips(newArr);
+        setFilteredTrips(newArr.length > 0 ? newArr.length : []);
       });
     }
   }, [filter]);
@@ -84,7 +85,7 @@ const RequestedTripsScreen = ({ navigation, route }) => {
         <View style={styles.loading}>
           <ActivityIndicator size={"large"} />
         </View>
-      ) : trips.length == 0 ? (
+      ) : filteredTrips.length == 0 ? (
         <ScrollView
           contentContainerStyle={styles.emptyContainer}
           refreshControl={
@@ -122,7 +123,7 @@ const RequestedTripsScreen = ({ navigation, route }) => {
               <View>
                 {/* <Text style={styles.date}>Today</Text> */}
                 <FlatList
-                  data={filteredTrips.length > 0 ? filteredTrips : trips}
+                  data={filteredTrips}
                   key={(item) => item.id}
                   renderItem={({ item }) => (
                     <TripItem

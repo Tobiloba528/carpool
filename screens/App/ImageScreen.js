@@ -12,9 +12,9 @@ import NavigationController from "../../components/UI/NavigationController";
 const ImageScreen = ({ route }) => {
   const { image } = route.params;
   return (
-    <SafeAreaView style={StyleSheet.mainContainer}>
+    <SafeAreaView style={styles.mainContainer}>
       <NavigationController title={""} right="" />
-      <View style={StyleSheet.contentContainer}>
+      <View style={styles.contentContainer}>
         <View style={styles.imageContainer}>
           <Image
             source={{ uri: image }}
@@ -36,11 +36,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "red",
+    display: "flex",
   },
   imageContainer: {
     width: "100%",
-    height: "100%",
+    height: "70%",
   },
   image: {
     height: "100%",

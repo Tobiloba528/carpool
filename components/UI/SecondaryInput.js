@@ -2,6 +2,7 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import React, { useRef, useEffect } from "react";
+import  { GOOGLE_API } from "@env"
 
 const SecondaryInput = ({ handleInput }) => {
   const inputRef = useRef();
@@ -27,7 +28,7 @@ const SecondaryInput = ({ handleInput }) => {
           // console.log("DETAILS: ", details )
         }}
         query={{
-          key: "AIzaSyDhaj6gSuSlUBRMkegB5uk914KoahTNXtc",
+          key: GOOGLE_API,
           language: "en",
         }}
       />
